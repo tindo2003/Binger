@@ -1,0 +1,9 @@
+{
+  "rds_host": "recommender.ciegkeoeoxpc.us-east-1.rds.amazonaws.com",
+  "rds_port": "3306",
+  "rds_user": "admin",
+  "rds_password": "p!3M-sJq[V",
+  "rds_db": "Streaming",
+  "server_host": "localhost",
+  "server_port": "8080"
+}

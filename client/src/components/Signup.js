@@ -1,4 +1,5 @@
 import * as React from 'react'
+import axios from 'axios'
 import Avatar from '@mui/material/Avatar'
 import Button from '@mui/material/Button'
 import CssBaseline from '@mui/material/CssBaseline'
@@ -12,6 +13,9 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
 import Typography from '@mui/material/Typography'
 import Container from '@mui/material/Container'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
+import { useNavigate } from 'react-router-dom'
+
+const config = require('../config.json')
 
 function Copyright(props) {
   return (
@@ -34,13 +38,30 @@ function Copyright(props) {
 const theme = createTheme()
 
 function SignUp() {
-  const handleSubmit = (event) => {
+  const navigate = useNavigate()
+  console.log(config.server_host)
+  console.log(config.server_port)
+  console.log()
+  const handleSubmit = async (event) => {
     event.preventDefault()
     const data = new FormData(event.currentTarget)
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    })
+    const response = await axios.post(
+      `http://${config.server_host}:${config.server_port}/signup`,
+      {
+        username: data.get('username'),
+        email: data.get('email'),
+        password: data.get('password'),
+        firstName: data.get('firstName'),
+        lastName: data.get('lastName'),
+      },
+    )
+    console.log(response)
+    if (response.data.success) {
+      console.log('Signed up successfully')
+      navigate('/')
+    } else {
+      console.log('Failed signing up')
+    }
   }
 
   return (
@@ -97,6 +118,16 @@ function SignUp() {
                   label="Email Address"
                   name="email"
                   autoComplete="email"
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  id="username"
+                  label="Username"
+                  name="username"
+                  autoComplete="username"
                 />
               </Grid>
               <Grid item xs={12}>
