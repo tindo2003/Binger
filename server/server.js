@@ -21,6 +21,8 @@ app.get('/authenticated', routes.authenticated);
 app.get('/netflix', routes.search_netflix);
 app.get('/streamtop', routes.streamTopTen);
 
+app.get('/search_movies', routes.search_movies);
+
 // Test route : remove later
 app.get('/simple', routes.simpleTest);
 

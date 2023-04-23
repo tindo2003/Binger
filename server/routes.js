@@ -16,9 +16,6 @@ const connection = mysql.createConnection({
 });
 connection.connect((err) => err && console.log(err));
 
-
-
-
 const signup = async function (req, res) {
   const userId = uuidv4()
   const data = req.body
@@ -170,6 +167,86 @@ const search_netflix = async function(req, res) {
   });   
 }
 
+const search_movies = async function (req, res) {
+  /*const {
+    netflix,
+    disney,
+    amazon,
+    hulu,
+  } = req.query;*/
+
+  const netflix = req.query.netflix==='true' ?? false;
+  const disney = req.query.disney==='true' ?? false;
+  const amazon = req.query.amazon==='true' ?? false;
+  const hulu = req.query.hulu==='true' ?? false;
+
+  const title = req.query.title ?? '';
+  const director = req.query.director ?? '';
+  const cast = req.query.cast ? JSON.parse(req.query.cast) : [];
+  const country = req.query.country ?? '';
+  const releaseYearMin = req.query.releaseYearMin ?? 1900;
+  const releaseYearMax = req.query.releaseYearMax ?? 2023;
+  const rating = req.query.rating ?? '';
+  const durationMin = req.query.durationMin ?? 0;
+  const durationMax = req.query.durationMax ?? 650;
+  const listedIn = req.query.listedIn ?? '';
+
+  const conditions = [
+    `(title LIKE '%${title}%')`,
+  ];
+
+  if (director) {
+    conditions.push(`(director LIKE '%${director}%' OR director IS NULL)`);
+  }
+  console.log(cast);
+  if (cast.length > 0) {
+    const castConditions = cast.map((name) => `(cast LIKE '%${name}%')`).join(' AND ');
+    conditions.push(`(${castConditions})`);
+  }
+  if (country) {
+    conditions.push(`(country LIKE '%${country}%' OR country IS NULL)`);
+  }
+  if (rating) {
+    conditions.push(`(rating LIKE '%${rating}%' OR rating IS NULL)`);
+  }
+
+  conditions.push(`(release_year >= ${releaseYearMin})`);
+  conditions.push(`(release_year <= ${releaseYearMax})`);
+  conditions.push(`(duration >= ${durationMin})`);
+  conditions.push(`(duration <= ${durationMax})`);
+  conditions.push(`(listed_in LIKE '%${listedIn}%')`);
+
+  const selectedPlatforms = [];
+  if (netflix) selectedPlatforms.push('Netflix');
+  if (disney) selectedPlatforms.push('Disney');
+  if (amazon) selectedPlatforms.push('Amazon');
+  if (hulu) selectedPlatforms.push('Hulu');
+
+  const unionQuery = selectedPlatforms
+    .map((platform) => `SELECT * FROM ${platform}`)
+    .join(' UNION ALL ');
+
+  const query = `
+    SELECT title
+    FROM (
+      ${unionQuery}
+    ) AS Combined
+    WHERE ${conditions.join(' AND ')}
+    ORDER BY release_year DESC;
+  `;
+
+  console.log(query)
+
+  connection.query(query, (err, data) => {
+    if (err || data.length === 0) {
+      res.json([]);
+    } else {
+      res.json(data);
+    }
+  });
+
+  //res.json(query);
+};
 
 // Route /streamtop: Top rated movies on the four streaming platforms (IMDb data)
 const streamTopTen = async function(req, res) {
@@ -212,4 +289,5 @@ module.exports = {
   simpleTest,
   search_netflix,
   streamTopTen,
+  search_movies,
 }
