@@ -10,9 +10,12 @@ app.use(
     origin: '*',
   }),
 )
+app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
 app.post('/signup', routes.signup)
+app.post('/login', routes.login)
+app.get('/authenticated', routes.authenticated)
 
 app.listen(config.server_port, () => {
   console.log(

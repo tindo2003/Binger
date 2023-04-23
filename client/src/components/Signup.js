@@ -14,8 +14,8 @@ import Typography from '@mui/material/Typography'
 import Container from '@mui/material/Container'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 import { useNavigate } from 'react-router-dom'
-
 const config = require('../config.json')
+
 
 function Copyright(props) {
   return (
@@ -45,6 +45,7 @@ function SignUp() {
   const handleSubmit = async (event) => {
     event.preventDefault()
     const data = new FormData(event.currentTarget)
+    // not at all pretty, need to refactor to include this handling in a separate file
     const response = await axios.post(
       `http://${config.server_host}:${config.server_port}/signup`,
       {

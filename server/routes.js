@@ -1,16 +1,7 @@
-const mysql = require('mysql')
-const config = require('./config.json')
+const db = require('./model/DBOperations')
 const { v4: uuidv4 } = require('uuid')
 const SHA256 = require('crypto-js/sha256')
-
-const connection = mysql.createConnection({
-  host: config.rds_host,
-  user: config.rds_user,
-  password: config.rds_password,
-  port: config.rds_port,
-  database: config.rds_db,
-})
-connection.connect((err) => err && console.log(err))
+const { authenticateUser, verifyUser } = require('./utils/auth')
 
 const signup = async function (req, res) {
   const userId = uuidv4()
@@ -21,23 +12,52 @@ const signup = async function (req, res) {
   const password = SHA256(data['password'])
   const firstName = data['firstName']
   const lastName = data['lastName']
-  console.log(data.email)
-  connection.query(
-    `INSERT INTO Users (userid, username, password, email, first_name, last_name)
-  VALUES ('${userId}', '${username}', '${password}', '${email}', '${firstName}', '${lastName}');`,
-    (err, data) => {
-      if (err || data.length === 0) {
-        // data will be a list of Song object(s)
-        console.log('The error is', err)
-        res.json({ success: 'False' })
-      } else {
-        console.log(data)
-        res.json({ success: 'True' })
-      }
-    },
+
+  const result = await db.signUp(
+    userId,
+    username,
+    password,
+    email,
+    firstName,
+    lastName,
   )
+  console.log(result)
+  if (result) {
+    res.json({ success: true })
+  } else {
+    res.json({ success: false })
+  }
+}
+
+const login = async function (req, res) {
+  // query the database to get the user id
+  db.logIn(req.body.username, SHA256(req.body.password))
+    .then((userId) => {
+      const token = authenticateUser(userId)
+      res.status(200).json({ apptoken: token })
+    })
+    .catch((err) => {
+      res.status(400).json({ error: "can't log in" })
+    })
+}
+
+const authenticated = async function (req, res) {
+  verifyUser(req.headers.authorization)
+    .then((result) => {
+      if (result) {
+        res.status(200).json({ success: true })
+      } else {
+        res.status(400).json({ success: false })
+      }
+    })
+    .catch((err) => {
+      console.log(err)
+      res.status(400)
+    })
 }
 
 module.exports = {
   signup,
+  login,
+  authenticated,
 }

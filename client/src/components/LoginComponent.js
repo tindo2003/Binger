@@ -1,4 +1,4 @@
-import * as React from 'react'
+import React, { useState } from 'react'
 import Avatar from '@mui/material/Avatar'
 import Button from '@mui/material/Button'
 import CssBaseline from '@mui/material/CssBaseline'
@@ -12,6 +12,9 @@ import Grid from '@mui/material/Grid'
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
 import Typography from '@mui/material/Typography'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
+import axios from 'axios'
+import { useNavigate } from 'react-router-dom'
+const config = require('../config.json')
 
 {
   /* 
@@ -39,13 +42,40 @@ function Copyright(props) {
 const theme = createTheme()
 
 function LoginComponent() {
-  const handleSubmit = (event) => {
+  const navigate = useNavigate()
+
+  const [login, setLogin] = useState(
+    sessionStorage.getItem('app-token') !== null,
+  )
+
+  const handleLogin = async (event) => {
     event.preventDefault()
     const data = new FormData(event.currentTarget)
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    })
+
+    const res = await axios.post(
+      `http://${config.server_host}:${config.server_port}/login`,
+      {
+        username: data.get('username'),
+        password: data.get('password'),
+      },
+    )
+    const statusCode = res.status
+
+    if (statusCode === 200) {
+      let token = res.data.apptoken
+      if (token) {
+        sessionStorage.setItem('app-token', token)
+        setLogin(true)
+        console.log(login)
+      }
+    } else {
+      console.log(res.data.error)
+      console.log('i am here')
+    }
+  }
+
+  if (login) {
+    window.location.replace('/homepage')
   }
 
   return (
@@ -88,17 +118,17 @@ function LoginComponent() {
             <Box
               component="form"
               noValidate
-              onSubmit={handleSubmit}
+              onSubmit={handleLogin}
               sx={{ mt: 1 }}
             >
               <TextField
                 margin="normal"
                 required
                 fullWidth
-                id="email"
-                label="Email Address"
-                name="email"
-                autoComplete="email"
+                id="username"
+                label="Username"
+                name="username"
+                autoComplete="username"
                 autoFocus
               />
               <TextField
