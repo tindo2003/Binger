@@ -60,11 +60,11 @@ const authenticated = async function (req, res) {
       if (result) {
         res.status(200).json({ success: true })
       } else {
-        res.status(400).json({ success: false })
+        res.status(205).json({ success: false })
       }
     })
     .catch((err) => {
-      console.log(err)
+      console.log('the error is', err)
       res.status(400)
     })
 }

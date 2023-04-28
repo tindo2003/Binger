@@ -19,7 +19,6 @@ function HomePage() {
   useEffect(() => {
     const getAuthentication = async () => {
       try {
-        setHeaders()
         const res = await axios.get(
           `http://${config.server_host}:${config.server_port}/authenticated`,
           {
@@ -32,11 +31,12 @@ function HomePage() {
         if (res.data.success) {
           setIsAuthenticated(true)
         } else {
-          console.log('set it to false')
           setIsAuthenticated(false)
+          sessionStorage.removeItem('app-token')
+          // remove the session token from the session storage
         }
       } catch (error) {
-        console.log(error)
+        console.log("error is", error)
       }
     }
     getAuthentication()
