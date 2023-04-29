@@ -100,8 +100,9 @@ const simpleTest = async function(req, res) {
 }
 
 // Route /netflix: Search the Netflix listings
-const search_netflix = async function(req, res) {
+const search_shows = async function(req, res) {
 
+  const stream = req.query.stream ?? 'Netflix';
   const type = req.query.type ?? '';
   const title = req.query.title ?? '';
   const director = req.query.director ?? '';
@@ -145,8 +146,9 @@ const search_netflix = async function(req, res) {
 
   connection.query(`
     SELECT *
-    FROM Netflix
-    WHERE type LIKE '%${type}%' AND 
+    FROM ${stream}
+    WHERE type LIKE 'TV Show' AND
+          type LIKE '%${type}%' AND 
           title LIKE '%${title}%' AND
           (director LIKE '%${director}%' ${directorNull} AND
           (cast LIKE '%${cast}%' ${castNull} AND
@@ -287,7 +289,7 @@ module.exports = {
   login,
   authenticated,
   simpleTest,
-  search_netflix,
+  search_shows,
   streamTopTen,
   search_movies,
 }

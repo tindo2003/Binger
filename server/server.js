@@ -18,7 +18,7 @@ app.post('/signup', routes.signup);
 app.post('/login', routes.login);
 app.get('/authenticated', routes.authenticated);
 
-app.get('/netflix', routes.search_netflix);
+app.get('/search_shows', routes.search_shows);
 app.get('/streamtop', routes.streamTopTen);
 
 app.get('/search_movies', routes.search_movies);
