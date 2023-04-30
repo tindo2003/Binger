@@ -99,11 +99,68 @@ const simpleTest = async function(req, res) {
 });
 }
 
+// Route: GET /show/:title
+// Pull up the show card for the given show
+// Related query can pull up providers that display a given movie/show
+const show = async function(req, res) {
+  connection.query(`
+    WITH shows AS ((SELECT *
+      FROM Netflix
+      WHERE Type LIKE 'TV Show')
+      UNION
+      (SELECT *
+      FROM Amazon
+      WHERE Type LIKE 'TV Show')
+      UNION
+      (SELECT *
+      FROM Hulu
+      WHERE Type LIKE 'TV Show')
+      UNION
+      (SELECT *
+      FROM Disney WHERE Type LIKE 'TV Show'))
+      SELECT * FROM shows WHERE title = '${req.params.title}' LIMIT 1;
+  `, (err, data) => {
+    if (err || data.length === 0) {
+      console.log(err);
+      res.json({});
+    } else {
+      res.json(data[0]);
+    }
+  });
+}
+
+// Route: GET /services/:title
+// For the show card final field. Query to see what services offer a given show 
+const servicesShow = async function(req, res) {
+  connection.query(`
+  WITH Amazon_named AS (SELECT title, 'Amazon' AS provider FROM Amazon WHERE type = 'TV Show'),
+  Hulu_named AS (SELECT title, 'Hulu' AS provider FROM Hulu WHERE type = 'TV Show'),
+  Netflix_named AS (SELECT title, 'Netflix' AS provider FROM Netflix WHERE type = 'TV Show'),
+  Disney_named AS (SELECT title, 'Disney' AS provider FROM Disney WHERE type = 'TV Show'),
+  all_providers AS (SELECT * FROM Amazon_named
+                             UNION
+                             SELECT * FROM Hulu_named
+                                      UNION
+                                      SELECT * FROM Netflix_named
+                                               UNION
+                                               SELECT * FROM Disney_named)
+SELECT provider
+FROM all_providers
+WHERE title='${req.params.title}';
+  `, (err, data) => {
+    if (err || data.length === 0) {
+      console.log(err);
+      res.json({});
+    } else {
+      res.json(data);
+    }
+  });
+}
+
 // Route /netflix: Search the Netflix listings
 const search_shows = async function(req, res) {
 
   const stream = req.query.stream ?? 'Netflix';
-  const type = req.query.type ?? '';
   const title = req.query.title ?? '';
   const director = req.query.director ?? '';
   const cast = req.query.cast ?? '';
@@ -111,8 +168,8 @@ const search_shows = async function(req, res) {
   const releaseYearMin = req.query.releaseYearMin ?? 1900;
   const releaseYearMax = req.query.releaseYearMax ?? 2023;
   const rating = req.query.rating ?? '';
-  const durationMin = req.query.durationMin ?? 0;
-  const durationMax = req.query.durationMax ?? 650;
+  const durationMin = req.query.durationMin ?? 1;
+  const durationMax = req.query.durationMax ?? 34;
   const listedIn = req.query.listedIn ?? '';       // all genres case? handled in the View
 
   // Variables to enable entries with null values for certain fields to display in results 
@@ -148,7 +205,6 @@ const search_shows = async function(req, res) {
     SELECT *
     FROM ${stream}
     WHERE type LIKE 'TV Show' AND
-          type LIKE '%${type}%' AND 
           title LIKE '%${title}%' AND
           (director LIKE '%${director}%' ${directorNull} AND
           (cast LIKE '%${cast}%' ${castNull} AND
@@ -162,6 +218,71 @@ const search_shows = async function(req, res) {
     ORDER BY release_year DESC;
   `, (err, data) => {
     if (err || data.length === 0) {
+      console.log(rating);
+      res.json([]);
+    } else {
+      res.json(data);
+    }
+  });   
+}
+
+// Route /imdb: Search the IMDB movies_metadata table
+const imdb = async function(req, res) {
+
+  const stream = req.query.stream ?? 'Netflix';
+  const genres = req.query.genres ?? [];
+  const budgetMin = req.query.budgetMin ?? 0;
+  const budgetMax = req.query.budgetMax ?? 400000000;
+  const originalLanguage = req.query.originalLanguage ?? '';
+    const listedIn = req.query.listedIn ?? '';       // all genres case? handled in the View
+
+  // Variables to enable entries with null values for certain fields to display in results 
+  // when the fields aren't specified by the user in their search
+  let directorNull;
+  let castNull;
+  let countryNull;
+  let ratingNull;
+
+
+  if (director === '') {
+    directorNull = 'OR director IS NULL)';
+  } else {
+    directorNull = ')';
+  }
+  if (cast === '') {
+    castNull = 'OR cast IS NULL)';
+  } else {
+    castNull = ')';
+  }
+  if (country === '') {
+    countryNull = 'OR country IS NULL)';
+  } else {
+    countryNull = ')';
+  }
+  if (rating === '') {
+    ratingNull = 'OR rating IS NULL)';
+  } else {
+    ratingNull = ')';
+  }
+
+  connection.query(`
+    SELECT *
+    FROM ${stream}
+    WHERE type LIKE 'TV Show' AND
+          title LIKE '%${title}%' AND
+          (director LIKE '%${director}%' ${directorNull} AND
+          (cast LIKE '%${cast}%' ${castNull} AND
+          (country LIKE '%${country}%' ${countryNull} AND
+          release_year >= ${releaseYearMin} AND
+          release_year <= ${releaseYearMax} AND
+          (rating LIKE '%${rating}%' ${ratingNull} AND
+          duration >= ${durationMin} AND
+          duration <= ${durationMax} AND
+          listed_in LIKE '%${listedIn}%'
+    ORDER BY release_year DESC;
+  `, (err, data) => {
+    if (err || data.length === 0) {
+      console.log(rating);
       res.json([]);
     } else {
       res.json(data);
@@ -289,6 +410,8 @@ module.exports = {
   login,
   authenticated,
   simpleTest,
+  show,
+  servicesShow,
   search_shows,
   streamTopTen,
   search_movies,
