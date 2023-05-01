@@ -38,7 +38,9 @@ const logIn = function (username, password) {
         if (err) {
           return reject(err)
         } else {
+          console.log('my data is', data[0])
           if (data[0].password === password.toString()) {
+            console.log('I was here??')
             resolve(data[0].userid)
           }
         }
@@ -63,10 +65,6 @@ const getUserByUserId = async function (userid) {
     )
   })
 }
-
-
-
-
 
 module.exports = {
   signUp,

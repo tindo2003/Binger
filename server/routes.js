@@ -6,15 +6,14 @@ const { authenticateUser, verifyUser } = require('./utils/auth')
 const mysql = require('mysql')
 const config = require('./config.json')
 
-
 const connection = mysql.createConnection({
   host: config.rds_host,
   user: config.rds_user,
   password: config.rds_password,
   port: config.rds_port,
-  database: config.rds_db
-});
-connection.connect((err) => err && console.log(err));
+  database: config.rds_db,
+})
+connection.connect((err) => err && console.log(err))
 
 const signup = async function (req, res) {
   const userId = uuidv4()
@@ -50,6 +49,7 @@ const login = async function (req, res) {
       res.status(200).json({ apptoken: token })
     })
     .catch((err) => {
+      console.log(err)
       res.status(400).json({ error: "can't log in" })
     })
 }
@@ -69,81 +69,80 @@ const authenticated = async function (req, res) {
     })
 }
 
-
-// Query test data format 
+// Query test data format
 
 const testURL = `http://${config.server_host}:${config.server_port}/netflix?type=Movie&country=United States&rating=R&listedIn=Dramas`
 
-const simpleTest = async function(req, res) {
-  const type = req.query.type ?? '%';
-  const title = req.query.title ?? '';     // need to include null
-  const director = req.query.director ?? '%';       // need to include null
-  const cast = req.query.cast ?? '%';           // need to include null
+const simpleTest = async function (req, res) {
+  const type = req.query.type ?? '%'
+  const title = req.query.title ?? '' // need to include null
+  const director = req.query.director ?? '%' // need to include null
+  const cast = req.query.cast ?? '%' // need to include null
 
-  
-  connection.query(`
+  connection.query(
+    `
   SELECT *
   FROM Netflix
   WHERE type LIKE '%${type}%' AND
   title LIKE '%${title}%'
   ORDER BY release_year DESC;
-`, (err, data) => {
-  if (err || data.length === 0) {
-    
-    res.json([]);
-  } else {
-    res.json(data);
-    console.log(type);
-    console.log(title);
-  }
-});
+`,
+    (err, data) => {
+      if (err || data.length === 0) {
+        res.json([])
+      } else {
+        res.json(data)
+        console.log(type)
+        console.log(title)
+      }
+    },
+  )
 }
 
 // Route /netflix: Search the Netflix listings
-const search_netflix = async function(req, res) {
+const search_netflix = async function (req, res) {
+  const type = req.query.type ?? ''
+  const title = req.query.title ?? ''
+  const director = req.query.director ?? ''
+  const cast = req.query.cast ?? ''
+  const country = req.query.country ?? '' // all countries case? handled in the View
+  const releaseYearMin = req.query.releaseYearMin ?? 1900
+  const releaseYearMax = req.query.releaseYearMax ?? 2023
+  const rating = req.query.rating ?? ''
+  const durationMin = req.query.durationMin ?? 0
+  const durationMax = req.query.durationMax ?? 650
+  const listedIn = req.query.listedIn ?? '' // all genres case? handled in the View
 
-  const type = req.query.type ?? '';
-  const title = req.query.title ?? '';
-  const director = req.query.director ?? '';
-  const cast = req.query.cast ?? '';
-  const country = req.query.country ?? '';       // all countries case? handled in the View
-  const releaseYearMin = req.query.releaseYearMin ?? 1900;
-  const releaseYearMax = req.query.releaseYearMax ?? 2023;
-  const rating = req.query.rating ?? '';
-  const durationMin = req.query.durationMin ?? 0;
-  const durationMax = req.query.durationMax ?? 650;
-  const listedIn = req.query.listedIn ?? '';       // all genres case? handled in the View
-
-  // Variables to enable entries with null values for certain fields to display in results 
+  // Variables to enable entries with null values for certain fields to display in results
   // when the fields aren't specified by the user in their search
-  let directorNull;
-  let castNull;
-  let countryNull;
-  let ratingNull;
-
+  let directorNull
+  let castNull
+  let countryNull
+  let ratingNull
 
   if (director === '') {
-    directorNull = 'OR director IS NULL)';
+    directorNull = 'OR director IS NULL)'
   } else {
-    directorNull = ')';
+    directorNull = ')'
   }
   if (cast === '') {
-    castNull = 'OR cast IS NULL)';
+    castNull = 'OR cast IS NULL)'
   } else {
-    castNull = ')';
+    castNull = ')'
   }
   if (country === '') {
-    countryNull = 'OR country IS NULL)';
+    countryNull = 'OR country IS NULL)'
   } else {
-    countryNull = ')';
+    countryNull = ')'
   }
   if (rating === '') {
-    ratingNull = 'OR rating IS NULL)';
+    ratingNull = 'OR rating IS NULL)'
   } else {
-    ratingNull = ')';
+    ratingNull = ')'
   }
 
-  connection.query(`
+  connection.query(
+    `
     SELECT *
     FROM Netflix
     WHERE type LIKE '%${type}%' AND 
@@ -158,13 +157,15 @@ const search_netflix = async function(req, res) {
           duration <= ${durationMax} AND
           listed_in LIKE '%${listedIn}%'
     ORDER BY release_year DESC;
-  `, (err, data) => {
-    if (err || data.length === 0) {
-      res.json([]);
-    } else {
-      res.json(data);
-    }
-  });   
+  `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        res.json([])
+      } else {
+        res.json(data)
+      }
+    },
+  )
 }
 
 const search_movies = async function (req, res) {
@@ -175,56 +176,56 @@ const search_movies = async function (req, res) {
     hulu,
   } = req.query;*/
 
-  const netflix = req.query.netflix==='true' ?? false;
-  const disney = req.query.disney==='true' ?? false;
-  const amazon = req.query.amazon==='true' ?? false;
-  const hulu = req.query.hulu==='true' ?? false;
+  const netflix = req.query.netflix === 'true' ?? false
+  const disney = req.query.disney === 'true' ?? false
+  const amazon = req.query.amazon === 'true' ?? false
+  const hulu = req.query.hulu === 'true' ?? false
 
-  const title = req.query.title ?? '';
-  const director = req.query.director ?? '';
-  const cast = req.query.cast ? JSON.parse(req.query.cast) : [];
-  const country = req.query.country ?? '';
-  const releaseYearMin = req.query.releaseYearMin ?? 1900;
-  const releaseYearMax = req.query.releaseYearMax ?? 2023;
-  const rating = req.query.rating ?? '';
-  const durationMin = req.query.durationMin ?? 0;
-  const durationMax = req.query.durationMax ?? 650;
-  const listedIn = req.query.listedIn ?? '';
+  const title = req.query.title ?? ''
+  const director = req.query.director ?? ''
+  const cast = req.query.cast ? JSON.parse(req.query.cast) : []
+  const country = req.query.country ?? ''
+  const releaseYearMin = req.query.releaseYearMin ?? 1900
+  const releaseYearMax = req.query.releaseYearMax ?? 2023
+  const rating = req.query.rating ?? ''
+  const durationMin = req.query.durationMin ?? 0
+  const durationMax = req.query.durationMax ?? 650
+  const listedIn = req.query.listedIn ?? ''
 
-  const conditions = [
-    `(title LIKE '%${title}%')`,
-  ];
+  const conditions = [`(title LIKE '%${title}%')`]
 
   if (director) {
-    conditions.push(`(director LIKE '%${director}%' OR director IS NULL)`);
+    conditions.push(`(director LIKE '%${director}%' OR director IS NULL)`)
   }
-  console.log(cast);
+  console.log(cast)
   if (cast.length > 0) {
-    const castConditions = cast.map((name) => `(cast LIKE '%${name}%')`).join(' AND ');
-    conditions.push(`(${castConditions})`);
+    const castConditions = cast
+      .map((name) => `(cast LIKE '%${name}%')`)
+      .join(' AND ')
+    conditions.push(`(${castConditions})`)
   }
   if (country) {
-    conditions.push(`(country LIKE '%${country}%' OR country IS NULL)`);
+    conditions.push(`(country LIKE '%${country}%' OR country IS NULL)`)
   }
   if (rating) {
-    conditions.push(`(rating LIKE '%${rating}%' OR rating IS NULL)`);
+    conditions.push(`(rating LIKE '%${rating}%' OR rating IS NULL)`)
   }
 
-  conditions.push(`(release_year >= ${releaseYearMin})`);
-  conditions.push(`(release_year <= ${releaseYearMax})`);
-  conditions.push(`(duration >= ${durationMin})`);
-  conditions.push(`(duration <= ${durationMax})`);
-  conditions.push(`(listed_in LIKE '%${listedIn}%')`);
+  conditions.push(`(release_year >= ${releaseYearMin})`)
+  conditions.push(`(release_year <= ${releaseYearMax})`)
+  conditions.push(`(duration >= ${durationMin})`)
+  conditions.push(`(duration <= ${durationMax})`)
+  conditions.push(`(listed_in LIKE '%${listedIn}%')`)
 
-  const selectedPlatforms = [];
-  if (netflix) selectedPlatforms.push('Netflix');
-  if (disney) selectedPlatforms.push('Disney');
-  if (amazon) selectedPlatforms.push('Amazon');
-  if (hulu) selectedPlatforms.push('Hulu');
+  const selectedPlatforms = []
+  if (netflix) selectedPlatforms.push('Netflix')
+  if (disney) selectedPlatforms.push('Disney')
+  if (amazon) selectedPlatforms.push('Amazon')
+  if (hulu) selectedPlatforms.push('Hulu')
 
   const unionQuery = selectedPlatforms
     .map((platform) => `SELECT * FROM ${platform}`)
-    .join(' UNION ALL ');
+    .join(' UNION ALL ')
 
   const query = `
     SELECT title
@@ -233,27 +234,27 @@ const search_movies = async function (req, res) {
     ) AS Combined
     WHERE ${conditions.join(' AND ')}
     ORDER BY release_year DESC;
-  `;
+  `
 
   console.log(query)
 
   connection.query(query, (err, data) => {
     if (err || data.length === 0) {
-      res.json([]);
+      res.json([])
     } else {
-      res.json(data);
+      res.json(data)
     }
-  });
+  })
 
   //res.json(query);
-};
+}
 
 // Route /streamtop: Top rated movies on the four streaming platforms (IMDb data)
-const streamTopTen = async function(req, res) {
+const streamTopTen = async function (req, res) {
+  const service = req.query.service // streaming platform in question
 
-  const service = req.query.service         // streaming platform in question
-
-  connection.query(`
+  connection.query(
+    `
     WITH ratengs AS (SELECT movieId, COUNT(*) as ratingsCount, ROUND(AVG(rating), 2) as average
     FROM Ratings
     GROUP BY movieId),
@@ -264,23 +265,18 @@ const streamTopTen = async function(req, res) {
     FROM nin n JOIN Movies m ON n.movieId = m.id JOIN StreamableMovies s ON s.title = m.original_title JOIN ${service} p ON p.title = s.title
     ORDER BY n.average DESC
     LIMIT 10;
-  `, (err, data) => {
-    if (err || data.length === 0) {
-      res.json([]);
-    } else {
-      res.json(data);
-    }
-  });   
+  `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        res.json([])
+      } else {
+        res.json(data)
+      }
+    },
+  )
 }
 
-
-
-
 // Test code
-
-
-
-
 
 module.exports = {
   signup,
