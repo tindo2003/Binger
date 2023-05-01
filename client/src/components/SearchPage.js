@@ -115,154 +115,145 @@ function SearchPage() {
 
   return (
     <Container>
-    {selectedShowName && <ShowCard showName={selectedShowName} handleClose={() => setSelectedShowName(null)} />}
-    <h2>Search Shows</h2>
-    <Grid container spacing={0}>
+      {selectedShowName && <ShowCard showName={selectedShowName} handleClose={() => setSelectedShowName(null)} />}
 
-    <Grid item xs={3}>
+      <h1>Search Shows</h1>
+      <Grid container spacing={0}>
+
+        <Grid item xs={3}>
           <TextField label='Title' value={title} onChange={(e) => setTitle(e.target.value)} style={{ width: "100%" }}/>
         </Grid>
 
-      <Grid item xs={3}>
-        <TextField label='Director' value={director} onChange={(e) => setDirector(e.target.value)} style={{ width: "100%" }}/>
-      </Grid>
+        <Grid item xs={3}>
+          <TextField label='Director' value={director} onChange={(e) => setDirector(e.target.value)} style={{ width: "100%" }}/>
+        </Grid>
 
-      <Grid item xs={3}>
-        <TextField label='Cast' value={cast} onChange={(e) => setCast(e.target.value)} style={{ width: "100%" }}/>
-      </Grid>
+        <Grid item xs={3}>
+          <TextField label='Cast' value={cast} onChange={(e) => setCast(e.target.value)} style={{ width: "100%" }}/>
+        </Grid>
 
-      <Grid item xs={3}>
-        <TextField label='Description' value={description} onChange={(e) => setDescription(e.target.value)} style={{ width: "100%" }}/>
-      </Grid>
+        <Grid item xs={3}>
+          <TextField label='Description' value={description} onChange={(e) => setDescription(e.target.value)} style={{ width: "100%" }}/>
+        </Grid>
 
 
-      <Grid item xs={4}>
-        <FormControl fullWidth>
-          <InputLabel id="rating-form">Genre</InputLabel>
-          <Select
-            labelId="genre"
-            id="genreForm"
-            value={listedIn}
-            label="genre"
-            onChange={(e)=> setListedIn(e.target.value)}
-          >
-            {tvGenres.map((index) => {
-              if (index === "") {
-                return <MenuItem value={index}>All Genres</MenuItem>
-              } else {
-                return <MenuItem value={index}>{index}</MenuItem>
+        <Grid item xs={4}>
+          <FormControl fullWidth>
+            <InputLabel id="rating-form">Genre</InputLabel>
+            <Select
+              labelId="genre"
+              id="genreForm"
+              value={listedIn}
+              label="genre"
+              onChange={(e)=> setListedIn(e.target.value)}
+            >
+              {tvGenres.map((index) => {
+                if (index === "") {
+                  return <MenuItem value={index}>All Genres</MenuItem>
+                } else {
+                  return <MenuItem value={index}>{index}</MenuItem>
+                }
+                
               }
-              
-            }
-              
-            )}
+                
+              )}
+
+            </Select>
+          </FormControl>
+        </Grid>
+        
+        <Grid item xs={4}>
+        <FormControl fullWidth>
+          <InputLabel id="rating-form">Content Rating</InputLabel>
+          <Select
+            labelId="rating"
+            id="ratingForm"
+            value={rating}
+            label="Age"
+            onChange={(e)=> setRating(e.target.value)}
+          >
+            {tvRatings.map((index) => {
+                if (index === "") {
+                  return <MenuItem value={index}>All Ratings</MenuItem>
+                } else {
+                  return <MenuItem value={index}>{index}</MenuItem>
+                }
+                
+              }
+                
+              )}
 
           </Select>
         </FormControl>
-      </Grid>
-      
-      <Grid item xs={4}>
-      <FormControl fullWidth>
-        <InputLabel id="rating-form">Content Rating</InputLabel>
-        <Select
-          labelId="rating"
-          id="ratingForm"
-          value={rating}
-          label="Age"
-          onChange={(e)=> setRating(e.target.value)}
-        >
-          {tvRatings.map((index) => {
-              if (index === "") {
-                return <MenuItem value={index}>All Ratings</MenuItem>
-              } else {
-                return <MenuItem value={index}>{index}</MenuItem>
+        </Grid>
+        
+
+
+        <Grid item xs={4}>
+        <FormControl fullWidth>
+          <InputLabel id="country-form">Country</InputLabel>
+          <Select
+            labelId="demo-simple-select-label"
+            id="demo-simple-select"
+            value={country}
+            label="Age"
+            onChange={(e)=> setCountry(e.target.value)}
+          >
+            {listOfSovereignStates.map((index) => {
+                if (index === "") {
+                  return <MenuItem value={index}>All Countries</MenuItem>
+                } else {
+                  return <MenuItem value={index}>{index}</MenuItem>
+                }
+                
               }
-              
-            }
-              
-            )}
-
-        </Select>
-      </FormControl>
+                
+              )}
+          </Select>
+        </FormControl>
+        </Grid>
       </Grid>
-      
-
-
-      <Grid item xs={4}>
-      <FormControl fullWidth>
-        <InputLabel id="country-form">Country</InputLabel>
-        <Select
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
-          value={country}
-          label="Age"
-          onChange={(e)=> setCountry(e.target.value)}
-        >
-          {listOfSovereignStates.map((index) => {
-              if (index === "") {
-                return <MenuItem value={index}>All Countries</MenuItem>
-              } else {
-                return <MenuItem value={index}>{index}</MenuItem>
-              }
-              
-            }
-              
-            )}
-        </Select>
-      </FormControl>
-      </Grid>
-
-      
-
-
-
-      </Grid>
-
-
-
-
       <Grid container spacing={5}>
 
-      <Grid item xs={5}>
-        <p>Number of Seasons</p>
-        <Slider
-          value={duration}
-          min={1}
-          max={34}
-          step={1}
-          onChange={(e, newValue) => setDuration(newValue)}
-          valueLabelDisplay='auto'
-          valueLabelFormat={value => <div> {value} Seasons </div>}
-        />
-      </Grid>
+        <Grid item xs={5}>
+          <p>Number of Seasons</p>
+          <Slider
+            value={duration}
+            min={1}
+            max={34}
+            step={1}
+            onChange={(e, newValue) => setDuration(newValue)}
+            valueLabelDisplay='auto'
+            valueLabelFormat={value => <div> {value} Seasons </div>}
+          />
+        </Grid>
 
-      <Grid item xs={5}>
-        <p>Release Year</p>
-        <Slider
-          value={releaseYear}
-          min={1900}
-          max={2023}
-          step={1}
-          onChange={(e, newValue) => setReleaseYear(newValue)}
-          valueLabelDisplay='auto'
-          valueLabelFormat={value => <div>{value}</div>}
-        />
-      </Grid>
+        <Grid item xs={5}>
+          <p>Release Year</p>
+          <Slider
+            value={releaseYear}
+            min={1900}
+            max={2023}
+            step={1}
+            onChange={(e, newValue) => setReleaseYear(newValue)}
+            valueLabelDisplay='auto'
+            valueLabelFormat={value => <div>{value}</div>}
+          />
+        </Grid>
 
-      <Grid item xs={2}>
-          
-            <FormControlLabel control={<Switch onChange={handelChange} name="Amazon"/>}  label="Amazon" />
-            <FormControlLabel control={<Switch onChange={handelChange} name="Disney" />}  label="Disney" />
-            <FormControlLabel control={<Switch onChange={handelChange} name="Hulu" />}  label="Hulu" />
-            <FormControlLabel control={<Switch checked={netflix} onChange={handelChange} name="Netflix" />}  label="Netflix" />
-
-      </Grid>
+        <Grid item xs={2}>
+            
+              <FormControlLabel control={<Switch onChange={handelChange} name="Amazon"/>}  label="Amazon" />
+              <FormControlLabel control={<Switch onChange={handelChange} name="Disney" />}  label="Disney" />
+              <FormControlLabel control={<Switch onChange={handelChange} name="Hulu" />}  label="Hulu" />
+              <FormControlLabel control={<Switch checked={netflix} onChange={handelChange} name="Netflix" />}  label="Netflix" />
 
         </Grid>
-        <Button onClick={() => search() } style={{ left: '50%', transform: 'translateX(-50%)' }}>
+
+      </Grid>
+      <Button onClick={() => search() } style={{ left: '50%', transform: 'translateX(-50%)' }}>
         Search
       </Button>
-
         <h2>Results</h2>
 
         <DataGrid
@@ -278,20 +269,8 @@ function SearchPage() {
         pageSizeOptions={[5, 10, 25]}
         checkboxSelection
       />
-
-      
-     
-            
-
-
-
-    <MovieFinal/>
-
-
-
-    
-  </Container>
-  
+      <MovieFinal/>
+    </Container>
   );
 }
 

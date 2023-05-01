@@ -1,6 +1,10 @@
 import axios from 'axios'
 import React, { useState, useEffect } from 'react'
+import { Container, CssBaseline, ThemeProvider } from '@mui/material'
 import { useNavigate, Link } from 'react-router-dom'
+import { createTheme } from "@mui/material/styles";
+
+const theme = createTheme();
 
 const config = require('../config.json')
 
@@ -42,23 +46,36 @@ function HomePage() {
     getAuthentication()
   }, [])
 
-  if (isAuthenticated) {
-    return <div>Welcome </div>
-  } else {
-    return (
-      <>
-        <p> Your session has expired. Click here to return back to login</p>
-        {
-          <Link
-            className="text-blue-500 hover:underline focus:underline"
-            to="/"
-          >
-            Home
-          </Link>
-        }{' '}
-      </>
-    )
-  }
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Container>
+        <h1>Welcome to Binger.</h1>
+        <h3>This is your one-stop shop for all your binge-watching needs. Find the content you love.</h3>
+      </Container>
+      <Divider />
+      
+    </ThemeProvider>
+    
+  )
+
+  // if (isAuthenticated) {
+  //   return <div>Welcome </div>
+  // } else {
+  //   return (
+  //     <>
+  //       <p> Your session has expired. Click here to return back to login</p>
+  //       {
+  //         <Link
+  //           className="text-blue-500 hover:underline focus:underline"
+  //           to="/"
+  //         >
+  //           Home
+  //         </Link>
+  //       }{' '}
+  //     </>
+  //   )
+  // }
 }
 
 export default HomePage
