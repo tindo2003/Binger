@@ -88,3 +88,37 @@
 
 
     */
+
+/*
+
+    ${genreConditions}
+          (original_language LIKE '%${originalLanguage}%' ${oLNull} AND
+          overview LIKE '%${overview}%' ${overviewNull} AND
+          original_title LIKE '%${original_title}%' ${oTNull} AND
+          modified_release_year BETWEEN '${releaseYearMin}' AND '${releaseYearMax}'
+
+          */
+
+
+/*
+          </Grid>
+        <Button onClick={() => search() } style={{ left: '50%', transform: 'translateX(-50%)' }}>
+        Search
+      </Button>
+      */
+
+
+/*            Toggle Amazon, Disney, Hulu, Netflix,
+
+      <FormGroup>
+  <FormControlLabel control={<Switch defaultChecked />} label="Label" />
+  <FormControlLabel required control={<Switch />} label="Required" />
+  <FormControlLabel disabled control={<Switch />} label="Disabled" />
+</FormGroup>
+
+  <Button onClick={() => search() } style={{ left: '50%', transform: 'translateX(-50%)' }}>
+        Search
+      </Button>
+
+
+*/
