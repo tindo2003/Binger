@@ -80,7 +80,7 @@ function UserPage() {
           },
         },
       )
-      console.log(res.data)
+      console.log('my shows are', res.data)
       setFavShow(res.data)
     } catch (error) {
       console.log('error is', error)
@@ -172,7 +172,7 @@ function UserPage() {
                   <TableRow>
                     <TableCell key="Title">Title</TableCell>
                     <TableCell key="release_year">Release Year</TableCell>
-                    <TableCell key="streaming">streaming</TableCell>
+                    <TableCell key="date_added">date_added</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -188,7 +188,9 @@ function UserPage() {
                       <TableCell key="release_year">
                         {myShow.release_year}
                       </TableCell>
-                      <TableCell key="streaming">{myShow.streaming}</TableCell>
+                      <TableCell key="date_added">
+                        {myShow.date_added}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
