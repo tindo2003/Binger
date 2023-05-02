@@ -99,7 +99,12 @@ export default function ShowCard({ showName, handleClose }) {
         <p>Genres: {showData.listed_in ?? 'N/A'} </p>
         <p>Description: {showData.description ?? 'N/A'}</p>
         <p>Streaming On: {commaSeparated(streamingData)}</p>
-        
+     <span className="clickable hover:bg-orange-300" onClick={handleLike}>
+          <FontAwesomeIcon
+            icon={icon({ name: 'heart', style: 'regular' })}
+            color="red"
+          /> 
+        </span>
         <Button
           onClick={handleClose}
           style={{ left: '50%', transform: 'translateX(-50%)' }}
