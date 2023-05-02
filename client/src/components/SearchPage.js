@@ -103,14 +103,14 @@ function SearchPage() {
       <Link onClick={() => setSelectedShowName(params.row.title)}>{params.value}</Link>
   ) },
     // { field: 'title', headerName: 'Title' },
-    { field: 'director', headerName: 'Director' },
-    { field: 'cast', headerName: 'Cast' },
-    { field: 'country', headerName: 'Country' },
-    { field: 'release_year', headerName: 'Release Year' },
-    { field: 'rating', headerName: 'Rating' },
-    { field: 'duration', headerName: 'Duration (Seasons)' },
-    { field: 'listed_in', headerName: 'Genres' },
-    { field: 'description', headerName: 'Description' },
+    { field: 'director', width: 130, headerName: 'Director' },
+    { field: 'cast', width: 150, headerName: 'Cast' },
+    { field: 'country', width: 130, headerName: 'Country' },
+    { field: 'release_year', width: 100, headerName: 'Release Year' },
+    { field: 'rating', width: 80, headerName: 'Rating' },
+    { field: 'duration', width: 100, headerName: 'Duration (Seasons)' },
+    { field: 'listed_in', width: 150, headerName: 'Genres' },
+    { field: 'description', width: 200, headerName: 'Description' },
   ]
 
   return (
@@ -266,7 +266,6 @@ function SearchPage() {
           },
         }}
         pageSizeOptions={[5, 10, 25]}
-        checkboxSelection
         class='mb-10'
       />
       <MovieFinal/>

@@ -55,22 +55,19 @@ export default function StreamMovieCard({ showName, handleClose }) {
         p={3}
         style={{ background: 'white', borderRadius: '16px', border: '2px solid #000', width: 600 }}
       >
-        <Typography variant="h2">{showData.original_title}</Typography>
-        <h2>Budget: {showData.budget !== 0 ? showData.budget: 'N/A'}
-          
-        </h2>
-
-        <p>Genres: {showData.genres }</p>
-        <p>Language: {showData.original_language} </p>
-        <p>Description: {showData.overview}</p>
+        <Typography variant="h2" className="my-3">{showData.original_title}</Typography>
+        <p className="my-1"><b>Budget:</b> {showData.budget !== 0 ? showData.budget: 'N/A'}</p>
+        <p className="my-1"><b>Genres:</b> {showData.genres }</p>
+        <p className="my-1"><b>Language:</b> {showData.original_language} </p>
+        <p className="my-1"><b>Description:</b> {showData.overview}</p>
         {showData && showData.modified_release_year && (
-          <p>Release Year: {showData.modified_release_year.slice(0, 4)}</p>
+          <p className="my-1"><b>Release Year:</b> {showData.modified_release_year.slice(0, 4)}</p>
         )}
-        <p>Director: {showData.director ?? 'N/A'}</p>
+        <p className="my-1"><b>Director:</b> {showData.director ?? 'N/A'}</p>
         
-        <p>Cast: {showData.cast ?? 'N/A'}</p>
-        <p>Rating: {showData.rating ?? 'N/A'}</p>
-        <p>Streaming On: {commaSeparated(streamingData)}</p>
+        <p className="my-1"><b>Cast:</b> {showData.cast ?? 'N/A'}</p>
+        <p className="my-1"><b>Rating:</b> {showData.rating ?? 'N/A'}</p>
+        <p className="my-1"><b>Streaming On:</b> {commaSeparated(streamingData)}</p>
 
         <Button onClick={handleClose} style={{ left: '50%', transform: 'translateX(-50%)' }} >
           Close

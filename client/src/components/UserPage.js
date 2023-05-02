@@ -206,12 +206,12 @@ function UserPage() {
     )
   } else {
     return (
-      <>
+      <Container className='p-8'>
         <p> Your session has expired. Click here to return back to login</p>
         <Link className="text-blue-500 hover:underline focus:underline" to="/">
           Login
         </Link>
-      </>
+      </Container>
     )
   }
 }
