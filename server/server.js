@@ -24,8 +24,11 @@ app.get('/search_shows', routes.search_shows);
 app.get('/streamtop', routes.streamTopTen);
 app.get('/imdb', routes.imdb);
 app.get('/stream_movie/:title', routes.stream_movie);
-
 app.get('/search_movies', routes.search_movies);
+
+app.get('/toggleLike/:movieid', routes.toggleLike);
+
+app.get('/getRecommendations', routes.recommender);
 
 // Test route : remove later
 app.get('/simple', routes.simpleTest);

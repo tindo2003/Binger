@@ -6,9 +6,11 @@ import SignUP from './components/Signup'
 import HomePage from './components/HomePage'
 import SearchPage from './components/SearchPage'
 import MovieFinal from './components/MovieFinal'
+import UserPage from './components/UserPage'
 import NavBar from './components/NavBar'
 import { CssBaseline, ThemeProvider } from '@mui/material'
 import { createTheme } from "@mui/material/styles";
+
 
 export const theme = createTheme();
 
@@ -24,6 +26,7 @@ function App() {
           <Route path="/homepage" element={<HomePage />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/moviefinal" element={<MovieFinal />} />
+          <Route path="/mypage" element={<UserPage />} />
         </Routes>
       </Router>
     </ThemeProvider>

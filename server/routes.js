@@ -6,15 +6,14 @@ const { authenticateUser, verifyUser } = require('./utils/auth')
 const mysql = require('mysql')
 const config = require('./config.json')
 
-
 const connection = mysql.createConnection({
   host: config.rds_host,
   user: config.rds_user,
   password: config.rds_password,
   port: config.rds_port,
-  database: config.rds_db
-});
-connection.connect((err) => err && console.log(err));
+  database: config.rds_db,
+})
+connection.connect((err) => err && console.log(err))
 
 const signup = async function (req, res) {
   const userId = uuidv4()
@@ -50,6 +49,7 @@ const login = async function (req, res) {
       res.status(200).json({ apptoken: token })
     })
     .catch((err) => {
+      console.log(err)
       res.status(400).json({ error: "can't log in" })
     })
 }
@@ -69,34 +69,34 @@ const authenticated = async function (req, res) {
     })
 }
 
-
-// Query test data format 
+// Query test data format
 
 const testURL = `http://${config.server_host}:${config.server_port}/netflix?type=Movie&country=United States&rating=R&listedIn=Dramas`
 
-const simpleTest = async function(req, res) {
-  const type = req.query.type ?? '%';
-  const title = req.query.title ?? '';     // need to include null
-  const director = req.query.director ?? '%';       // need to include null
-  const cast = req.query.cast ?? '%';           // need to include null
+const simpleTest = async function (req, res) {
+  const type = req.query.type ?? '%'
+  const title = req.query.title ?? '' // need to include null
+  const director = req.query.director ?? '%' // need to include null
+  const cast = req.query.cast ?? '%' // need to include null
 
-  
-  connection.query(`
+  connection.query(
+    `
   SELECT *
   FROM Netflix
   WHERE type LIKE '%${type}%' AND
   title LIKE '%${title}%'
   ORDER BY release_year DESC;
-`, (err, data) => {
-  if (err || data.length === 0) {
-    
-    res.json([]);
-  } else {
-    res.json(data);
-    console.log(type);
-    console.log(title);
-  }
-});
+`,
+    (err, data) => {
+      if (err || data.length === 0) {
+        res.json([])
+      } else {
+        res.json(data)
+        console.log(type)
+        console.log(title)
+      }
+    },
+  )
 }
 
 // Route: GET /movie/:title
@@ -114,6 +114,133 @@ const movie = async function(req, res) {
     }
   });
 }
+
+const toggleLike = async function (req, res) {
+
+    const user = await verifyUser(req.headers.authorization);
+    //const user = {"userId": "0efdfc13-e650-4b17-8d77-2787df08b4bc"};
+    if(!user){
+      res.status(400).json({ error: "user not logged in" });
+      return;
+    }
+
+    const userId = user.userId;
+
+    const movieid = req.params.movieid;
+
+    //checks if the user has already liked the movie
+
+    connection.query(`SELECT * 
+                      FROM FavMovies
+                      WHERE userid = '${userId}' AND movieid = '${movieid}'`, (err, data) => {
+                        if (err){
+                          console.log("error checking if user has liked movie", err);
+                          res.status(400).json({error: "error checking if user has liked movie"});
+                          return;
+                        } else {
+                        if(data.length===0){
+                          console.log("liked the movie")
+                          //user has not liked the movie yet
+                          connection.query(`INSERT INTO FavMovies (userid, movieid) VALUES ('${userId}', ${movieid})`, (err, data) => {
+                            if (err){
+                              console.log("error adding movie to user's favorites", err);
+                              res.status(400).json({error: "error adding movie to user's favorites"});
+                              return;
+                            }
+                            res.status(200).json({success: true, likeStatus: true});
+                          });
+                        } else{
+                          //user has already liked the movie
+                          console.log("disliked the movie");
+                          connection.query(`DELETE FROM FavMovies WHERE userid = '${userId}' AND movieid = '${movieid}'`, (err, data) => {
+                            if (err){
+                              console.log("error removing movie from user's favorites", err);
+                              res.status(400).json({error: "error removing movie from user's favorites"});
+                              return;
+                            }
+                            res.status(200).json({success: true, likeStatus:false});
+                          });
+                        }
+                      }
+
+                      });
+
+
+}
+
+const recommender = async function (req, res) {
+
+  const user = await verifyUser(req.headers.authorization);
+  //const user = {"userId": "0efdfc13-e650-4b17-8d77-2787df08b4bc"};
+  if(!user){
+    res.status(400).json({ error: "user not logged in" });
+    return;
+  }
+
+  const userId = user.userId;
+
+  queryAsync(`SELECT * FROM FavMovies WHERE userid = ?`, [userId])
+  .then((data) => {
+    const movieIds = data.map((movie) => movie.movieid);
+
+    // Get movies also liked by the similar users
+    return queryAsync(`
+      SELECT fm2.movieid, COUNT(fm2.userid) as mutualLikeCount
+      FROM FavMovies as fm1
+      JOIN FavMovies as fm2 ON fm1.userid = fm2.userid
+      WHERE fm1.movieid IN (?) AND fm1.userid != ? AND fm2.movieid != fm1.movieid
+      GROUP BY fm2.movieid
+      ORDER BY mutualLikeCount DESC
+    `, [movieIds, userId]);
+  }).then((data) => { 
+
+    const movieIds = data.map((movie) => movie.movieid);
+
+    connection.query(`SELECT id, original_title 
+                      FROM Movies
+                      WHERE id IN (?)`, [movieIds], (err, movieNames) => {
+                        if (err){
+                          console.log("error getting movie titles", err);
+                          res.status(400).json({error: "error getting movie titles"});
+                          return;
+                        }
+
+                        // Create a mapping of movieIds to movieNames
+                        const movieNameMap = new Map(movieNames.map(movie => [movie.id, movie.original_title]));
+
+                        // Update data with movie names
+                        const updatedData = data.map(movie => {
+                          return {
+                            ...movie,
+                            movieName: movieNameMap.get(movie.movieid)
+                          };
+                        });
+
+                        updatedData.sort((a, b) => b.mutualLikeCount - a.mutualLikeCount);
+
+                        res.status(200).json({success: true, similarMovies: updatedData});
+                      }
+    );
+  }).catch(err => {
+    console.log(err);
+    res.status(400).json({error: "there was an error in the recommender: ", err});
+  });
+
+
+}
+
+function queryAsync(sql, params) {
+  return new Promise((resolve, reject) => {
+    connection.query(sql, params, (err, data) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(data);
+      }
+    });
+  });
+}
+
 
 // Route: GET /show/:title
 // Pull up the show card for the given show
@@ -231,31 +358,30 @@ const search_shows = async function(req, res) {
 
   // Variables to enable entries with null values for certain fields to display in results 
   // when the fields aren't specified by the user in their search
-  let directorNull;
-  let castNull;
-  let countryNull;
-  let ratingNull;
-
+  let directorNull
+  let castNull
+  let countryNull
+  let ratingNull
 
   if (director === '') {
-    directorNull = 'OR director IS NULL)';
+    directorNull = 'OR director IS NULL)'
   } else {
-    directorNull = ')';
+    directorNull = ')'
   }
   if (cast === '') {
-    castNull = 'OR cast IS NULL)';
+    castNull = 'OR cast IS NULL)'
   } else {
-    castNull = ')';
+    castNull = ')'
   }
   if (country === '') {
-    countryNull = 'OR country IS NULL)';
+    countryNull = 'OR country IS NULL)'
   } else {
-    countryNull = ')';
+    countryNull = ')'
   }
   if (rating === '') {
-    ratingNull = 'OR rating IS NULL)';
+    ratingNull = 'OR rating IS NULL)'
   } else {
-    ratingNull = ')';
+    ratingNull = ')'
   }
   let unionQuery;
   
@@ -381,10 +507,10 @@ const search_movies = async function (req, res) {
     hulu,
   } = req.query;*/
 
-  const netflix = req.query.netflix==='true' ?? false;
-  const disney = req.query.disney==='true' ?? false;
-  const amazon = req.query.amazon==='true' ?? false;
-  const hulu = req.query.hulu==='true' ?? false;
+  const netflix = req.query.netflix === 'true' ?? false
+  const disney = req.query.disney === 'true' ?? false
+  const amazon = req.query.amazon === 'true' ?? false
+  const hulu = req.query.hulu === 'true' ?? false
 
   const title = req.query.title ?? '';
   const director = req.query.director ?? '';
@@ -397,17 +523,17 @@ const search_movies = async function (req, res) {
   const genres = req.query.genres ? JSON.parse(req.query.genres) : [];
   const originalLanguage = req.query.originalLanguage ?? '';
 
-  const conditions = [
-    `(title LIKE '%${title}%')`,
-  ];
+  const conditions = [`(title LIKE '%${title}%')`]
 
   if (director) {
     conditions.push(`(director LIKE '%${director}%')`);
   }
-  console.log(cast);
+  console.log(cast)
   if (cast.length > 0) {
-    const castConditions = cast.map((name) => `(cast LIKE '%${name}%')`).join(' AND ');
-    conditions.push(`(${castConditions})`);
+    const castConditions = cast
+      .map((name) => `(cast LIKE '%${name}%')`)
+      .join(' AND ')
+    conditions.push(`(${castConditions})`)
   }
 
   if (rating) {
@@ -417,11 +543,11 @@ const search_movies = async function (req, res) {
   conditions.push(`(release_year >= ${releaseYearMin})`);
   conditions.push(`(release_year <= ${releaseYearMax})`);
 
-  const selectedPlatforms = [];
-  if (netflix) selectedPlatforms.push('Netflix');
-  if (disney) selectedPlatforms.push('Disney');
-  if (amazon) selectedPlatforms.push('Amazon');
-  if (hulu) selectedPlatforms.push('Hulu');
+  const selectedPlatforms = []
+  if (netflix) selectedPlatforms.push('Netflix')
+  if (disney) selectedPlatforms.push('Disney')
+  if (amazon) selectedPlatforms.push('Amazon')
+  if (hulu) selectedPlatforms.push('Hulu')
 
 
   let genreConditions = 'AND';
@@ -458,21 +584,21 @@ const search_movies = async function (req, res) {
 
   connection.query(query, (err, data) => {
     if (err || data.length === 0) {
-      res.json([]);
+      res.json([])
     } else {
-      res.json(data);
+      res.json(data)
     }
-  });
+  })
 
   //res.json(query);
-};
+}
 
 // Route /streamtop: Top rated movies on the four streaming platforms (IMDb data)
-const streamTopTen = async function(req, res) {
+const streamTopTen = async function (req, res) {
+  const service = req.query.service // streaming platform in question
 
-  const service = req.query.service         // streaming platform in question
-
-  connection.query(`
+  connection.query(
+    `
     WITH ratengs AS (SELECT movieId, COUNT(*) as ratingsCount, ROUND(AVG(rating), 2) as average
     FROM Ratings
     GROUP BY movieId),
@@ -483,23 +609,18 @@ const streamTopTen = async function(req, res) {
     FROM nin n JOIN Movies m ON n.movieId = m.id JOIN StreamableMovies s ON s.title = m.original_title JOIN ${service} p ON p.title = s.title
     ORDER BY n.average DESC
     LIMIT 10;
-  `, (err, data) => {
-    if (err || data.length === 0) {
-      res.json([]);
-    } else {
-      res.json(data);
-    }
-  });   
+  `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        res.json([])
+      } else {
+        res.json(data)
+      }
+    },
+  )
 }
 
-
-
-
 // Test code
-
-
-
-
 
 module.exports = {
   signup,
@@ -514,4 +635,6 @@ module.exports = {
   streamTopTen,
   imdb,
   search_movies,
+  toggleLike,
+  recommender,
 }

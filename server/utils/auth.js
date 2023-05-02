@@ -40,9 +40,9 @@ const verifyUser = async (token) => {
     if (!user) {
       // user is undefined
       console.log('User can not be verified')
-      return false
+      return user;
     }
-    return true
+    return user;
   } catch (err) {
     // invalid token
     console.log('error', err.message)
