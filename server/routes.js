@@ -129,7 +129,7 @@ const toggleLike = async function (req, res) {
         console.log('User is not logged in')
         res.status(400).json({ error: 'user not logged in' })
 
-        return
+        
       }
 
       const userId = user.userid;
@@ -154,7 +154,7 @@ const toggleLike = async function (req, res) {
                 res
                   .status(400)
                   .json({ error: 'error checking if user has liked movie' })
-                return
+                
               } else {
                 if (data.length === 0) {
                   console.log('liked the movie')
@@ -168,7 +168,7 @@ const toggleLike = async function (req, res) {
                         res
                           .status(400)
                           .json({ error: "error adding movie to user's favorites" })
-                        return
+                        
                       }
                       res.status(200).json({ success: true, likeStatus: true })
                     },
@@ -187,7 +187,7 @@ const toggleLike = async function (req, res) {
                         res.status(400).json({
                           error: "error removing movie from user's favorites",
                         })
-                        return
+                        
                       }
                       res.status(200).json({ success: true, likeStatus: false })
                     },
@@ -268,7 +268,7 @@ const toggleLikeShow = async function (req, res) {
       console.log('User is not logged in')
       res.status(400).json({ error: 'user not logged in' })
 
-      return
+      
     }
     const userId = user.userid
 
@@ -281,7 +281,7 @@ const toggleLikeShow = async function (req, res) {
       (err, data) => {
         if (err) {
           res.status(400)
-          return
+          
         } else {
           // the user has not liked this show
           if (data.length === 0) {
@@ -369,7 +369,7 @@ const recommender = async function (req, res) {
           if (err) {
             console.log('error getting movie titles', err)
             res.status(400).json({ error: 'error getting movie titles' })
-            return
+            
           }
 
           // Create a mapping of movieIds to movieNames
