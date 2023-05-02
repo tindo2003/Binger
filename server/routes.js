@@ -320,23 +320,29 @@ const toggleLikeShow = async function (req, res) {
   })
 }
 
+
+
+
 const recommender = async function (req, res) {
   // const user = await verifyUser(req.headers.authorization);
 
   verifyUser(req.headers.authorization).then((user) => {
-  // user = { userId: '006d3fd9-7657-46af-9937-0d370351b599' }
+   user = { userId: '006d3fd9-7657-46af-9937-0d370351b599' }
   if (!user) {
     res.status(400).json({ error: 'user not logged in' })
-  }
+    
+  } else{
    const userId = user.userId
+   console.log(userId);
 
   queryAsync(`SELECT * FROM FavMovies2 WHERE user_id = ?`, [userId])
     .then((data) => {
       const movieIds = data.map((movie) => movie.movieid)
       
       if(movieIds.length === 0) {
-        res.status(200).json({ success: true, data: [], message:"no likes from user" })
-      }
+        res.status(200).json({ success: true, similarMovies: [], message:"no likes from user" });
+        
+      }else{
 
       console.log('movieIds', movieIds)
 
@@ -346,20 +352,21 @@ const recommender = async function (req, res) {
       SELECT fm2.movieid, COUNT(fm2.user_id) as mutualLikeCount
       FROM FavMovies2 as fm1
       JOIN FavMovies2 as fm2 ON fm1.user_id = fm2.user_id
-      WHERE fm1.movieid IN (?) AND fm1.user_id != ? AND fm2.movieid != fm1.movieid
+      WHERE fm1.movieid IN (SELECT movieid FROM FavMovies2 WHERE user_id = ?) AND fm1.user_id != ? AND fm2.movieid != fm1.movieid
       GROUP BY fm2.movieid
       ORDER BY mutualLikeCount DESC
     `,
-        [movieIds, userId],
-      )
+        [userId, userId],
+      )}
     })
     .then((data) => {
+      
       const movieIds = data.map((movie) => movie.movieid)
       
       if (movieIds.length === 0) {
         res.status(200).json({ success: true, data: [], message: "no recommendations to be made" })
-        return;
-      }
+        
+      } else{
       connection.query(
         `SELECT id, original_title 
                       FROM Movies
@@ -391,14 +398,12 @@ const recommender = async function (req, res) {
 
           res.status(200).json({ success: true, similarMovies: ret })
         },
-      )
+      )}
     })
     .catch((err) => {
       console.log(err)
-      res
-        .status(400)
-        .json({ error: 'there was an error in the recommender: ', err })
-    }) 
+    
+    })} 
   })
 }
 
