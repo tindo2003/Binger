@@ -328,7 +328,7 @@ const recommender = async function (req, res) {
     return
   }
 
-  // const userId = user.userId
+   const userId = user.userId
 
   queryAsync(`SELECT * FROM FavMovies WHERE userid = ?`, [userId])
     .then((data) => {
