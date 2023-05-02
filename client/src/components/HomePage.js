@@ -31,7 +31,10 @@ function HomePage() {
   const [topMovies, setTopMovies] = useState([])
   const [selectedStream, setSelectedStream] = useState(null)
   const [selectedMovie, setSelectedMovie] = useState(null)
+  const [isRecommened, setIsRecommended] = useState(false)
+  const [recMovies, setRecMovies] = useState([])
   const navigate = useNavigate()
+
   // run this before the component is rerendered.
   useEffect(() => {
     fetch(
@@ -47,12 +50,33 @@ function HomePage() {
   }, [platform])
 
   useEffect(() => {
+    fetch(
+      `http://${config.server_host}:${config.server_port}/getRecommendations`,
+      {
+        headers: {
+          authorization: sessionStorage.getItem('app-token'),
+        },
+      },
+    )
+      .then((res) => res.json())
+      .then((resJson) => {
+        const result = resJson.similarMovies.map((movie) => {
+          return { id: movie.movieid, ...movie }
+        })
+        console.log(result);
+        resJson.similarMovies.length > 0 ? setIsRecommended(true) : setIsRecommended(false);
+        setRecMovies(result);
+      })
+  }, [])
+
+  useEffect(() => {
     fetch(`http://${config.server_host}:${config.server_port}/movietop`)
       .then((res) => res.json())
       .then((resJson) => {
         const result = resJson.map((movie) => {
           return { id: movie.movieId, ...movie }
         })
+        
         console.log(result)
         setTopMovies(result)
       })
@@ -88,6 +112,20 @@ function HomePage() {
       ),
     },
     { field: 'AverageRating', width: 300, headerName: 'Average Rating' },
+  ]
+
+  const columnsRec = [
+    {
+      field: 'movieName',
+      headerName: 'Title',
+      width: 700,
+      renderCell: (params) => (
+        <Link onClick={() => setSelectedMovie(params.row.movieName)}>
+          {params.value}
+        </Link>
+      ),
+    },
+    { field: 'mutualLikeCount', width: 300, headerName: 'Recommendation Score' },
   ]
 
   useEffect(() => {
@@ -213,6 +251,25 @@ function HomePage() {
         </Container>
         <Divider />
         <p className="text-3xl font-medium mt-8">RECOMMENDATIONS</p>
+        <Container className='mt-6'>
+          <p className="text-2xl font-semibold mt-8 mb-3">
+            Curated Recommendations
+          </p>
+          <div style={{ height: 'calc(76vh - 250px)', width: '100%' }}>
+            <DataGrid
+              rows={recMovies}
+              columns={columnsRec}
+              initialState={{
+                pagination: {
+                  paginationModel: {
+                    pageSize: 5,
+                  },
+                },
+              }}
+              pageSizeOptions={[5, 10]}
+            />
+          </div>
+        </Container>
       </Container>
     )
   } else {
