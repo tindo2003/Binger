@@ -114,11 +114,11 @@ function SearchPage() {
   ]
 
   return (
-    <Container>
+    <Container class='py-8 px-10'>
       {selectedShowName && <ShowCard showName={selectedShowName} handleClose={() => setSelectedShowName(null)} />}
 
-      <h1>Search Shows</h1>
-      <Grid container spacing={0}>
+      <p class='text-3xl font-semibold my-4'>Search Shows</p>
+      <Grid container spacing={1}>
 
         <Grid item xs={3}>
           <TextField label='Title' value={title} onChange={(e) => setTitle(e.target.value)} style={{ width: "100%" }}/>
@@ -213,8 +213,8 @@ function SearchPage() {
         </FormControl>
         </Grid>
       </Grid>
+      <Container class='my-2'>
       <Grid container spacing={5}>
-
         <Grid item xs={5}>
           <p>Number of Seasons</p>
           <Slider
@@ -242,7 +242,6 @@ function SearchPage() {
         </Grid>
 
         <Grid item xs={2}>
-            
               <FormControlLabel control={<Switch onChange={handelChange} name="Amazon"/>}  label="Amazon" />
               <FormControlLabel control={<Switch onChange={handelChange} name="Disney" />}  label="Disney" />
               <FormControlLabel control={<Switch onChange={handelChange} name="Hulu" />}  label="Hulu" />
@@ -251,12 +250,12 @@ function SearchPage() {
         </Grid>
 
       </Grid>
-      <Button onClick={() => search() } style={{ left: '50%', transform: 'translateX(-50%)' }}>
+      </Container>
+      <Button onClick={() => search() } style={{ left: '50%', transform: 'translateX(-50%)'}}>
         Search
       </Button>
-        <h2>Results</h2>
-
-        <DataGrid
+      <p class='text-2xl font-medium my-3'>Results</p>
+      <DataGrid
         rows={results}
         columns={columns}
         initialState={{
@@ -268,6 +267,7 @@ function SearchPage() {
         }}
         pageSizeOptions={[5, 10, 25]}
         checkboxSelection
+        class='mb-10'
       />
       <MovieFinal/>
     </Container>

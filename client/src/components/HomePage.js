@@ -1,10 +1,8 @@
 import axios from 'axios'
 import React, { useState, useEffect } from 'react'
-import { Container, CssBaseline, ThemeProvider } from '@mui/material'
+import { Container, Divider, Grid} from '@mui/material'
 import { useNavigate, Link } from 'react-router-dom'
-import { createTheme } from "@mui/material/styles";
-
-const theme = createTheme();
+import Typography from '@mui/material/Typography'
 
 const config = require('../config.json')
 
@@ -47,16 +45,22 @@ function HomePage() {
   }, [])
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Container>
-        <h1>Welcome to Binger.</h1>
-        <h3>This is your one-stop shop for all your binge-watching needs. Find the content you love.</h3>
+    <Container class='p-8'>
+      <p class='text-5xl font-bold my-4'>Welcome to BINGER.</p>
+      <p class='text-xl mb-8'>This is your one-stop shop for all your binge-watching needs. Find the content you love.</p>
+      <Divider/>
+      <Container class='mt-8'>
+        <Grid container spacing={1}>
+          <Grid item xs={6}>
+            <p class='text-3xl font-semibold'>Top 10 Movies</p>
+          </Grid>
+          <Grid item xs={6}>
+            <p class='text-3xl font-semibold'>Top 10 Shows</p>
+          </Grid>
+        </Grid>
       </Container>
-      <Divider />
-      
-    </ThemeProvider>
-    
+
+    </Container>
   )
 
   // if (isAuthenticated) {
