@@ -159,6 +159,7 @@ const toggleLike = async function (req, res) {
                 if (data.length === 0) {
                   console.log('liked the movie')
                   //user has not liked the movie yet
+                  console.log(movieid);
                   connection.query(
                     `INSERT INTO FavMovies2 (user_id, movieid) VALUES ('${userId}', ${movieid})`,
                     (err, data) => {
@@ -322,25 +323,30 @@ const recommender = async function (req, res) {
   // const user = await verifyUser(req.headers.authorization);
 
   verifyUser(req.headers.authorization).then((user) => {
-  //const user = { userId: '20b03b68-4f2a-4384-a603-1efb98515113' }
+  // user = { userId: '006d3fd9-7657-46af-9937-0d370351b599' }
   if (!user) {
     res.status(400).json({ error: 'user not logged in' })
     return
   }
-
    const userId = user.userId
 
-  queryAsync(`SELECT * FROM FavMovies WHERE userid = ?`, [userId])
+  queryAsync(`SELECT * FROM FavMovies2 WHERE user_id = ?`, [userId])
     .then((data) => {
       const movieIds = data.map((movie) => movie.movieid)
+      
+      if(movieIds.length === 0) {
+        res.status(200).json({ success: true, data: [], message:"no likes from user" })
+      }
+
+      console.log('movieIds', movieIds)
 
       // Get movies also liked by the similar users
       return queryAsync(
         `
-      SELECT fm2.movieid, COUNT(fm2.userid) as mutualLikeCount
-      FROM FavMovies as fm1
-      JOIN FavMovies as fm2 ON fm1.userid = fm2.userid
-      WHERE fm1.movieid IN (?) AND fm1.userid != ? AND fm2.movieid != fm1.movieid
+      SELECT fm2.movieid, COUNT(fm2.user_id) as mutualLikeCount
+      FROM FavMovies2 as fm1
+      JOIN FavMovies2 as fm2 ON fm1.user_id = fm2.user_id
+      WHERE fm1.movieid IN (?) AND fm1.user_id != ? AND fm2.movieid != fm1.movieid
       GROUP BY fm2.movieid
       ORDER BY mutualLikeCount DESC
     `,
@@ -349,7 +355,11 @@ const recommender = async function (req, res) {
     })
     .then((data) => {
       const movieIds = data.map((movie) => movie.movieid)
-
+      
+      if (movieIds.length === 0) {
+        res.status(200).json({ success: true, data: [], message: "no recommendations to be made" })
+        return;
+      }
       connection.query(
         `SELECT id, original_title 
                       FROM Movies

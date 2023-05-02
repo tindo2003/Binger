@@ -82,7 +82,8 @@ const insertRandomFavMovies = async function(n) {
 }
 
 
-insertRandomFavMovies(15000);
+unloadUsers();
+
 
 
       
