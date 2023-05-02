@@ -112,9 +112,9 @@ function SearchMoviePage() {
 
   return (
     
-    <Container>
+    <Container maxWidth="xl">
       {selectedMovieName && <MovieCard showName={selectedMovieName} handleClose={() => setSelectedMovieName(null)} />}
-<Grid container spacing={0}>
+<Grid container spacing={2}>
 
 <Grid item xs={3}>
       <TextField label='Title' value={title} onChange={(e) => setTitle(e.target.value)} style={{ width: "100%" }}/>
@@ -170,43 +170,43 @@ function SearchMoviePage() {
   </Grid>
   
   </Grid>
+  
+  <Container class='my-2'>
+    <Grid container spacing={5}>
 
+      <Grid item xs={5}>
+        <p>Budget</p>
+        <Slider
+          value={budget}
+          min={0}
+          max={400000000}
+          step={4000000}
+          onChange={(e, newValue) => setBudget(newValue)}
+          valueLabelDisplay='auto'
+          valueLabelFormat={value => <div> {value} </div>}
+        />
+      </Grid>
 
-
-
-  <Grid container spacing={5}>
-
-  <Grid item xs={5}>
-    <p>Budget</p>
-    <Slider
-      value={budget}
-      min={0}
-      max={400000000}
-      step={4000000}
-      onChange={(e, newValue) => setBudget(newValue)}
-      valueLabelDisplay='auto'
-      valueLabelFormat={value => <div> {value} </div>}
-    />
-  </Grid>
-
-  <Grid item xs={5}>
-    <p>Release Year</p>
-    <Slider
-      value={releaseYear}
-      min={1874}
-      max={2023}
-      step={1}
-      onChange={(e, newValue) => setReleaseYear(newValue)}
-      valueLabelDisplay='auto'
-      valueLabelFormat={value => <div>{value}</div>}
-    />
-  </Grid>
+      <Grid item xs={5}>
+        <p>Release Year</p>
+        <Slider
+          value={releaseYear}
+          min={1874}
+          max={2023}
+          step={1}
+          onChange={(e, newValue) => setReleaseYear(newValue)}
+          valueLabelDisplay='auto'
+          valueLabelFormat={value => <div>{value}</div>}
+        />
+      </Grid>
 
 
 
 
 
-  </Grid>
+    </Grid>
+
+  </Container>
   
 
   <Button onClick={() => search() } style={{ left: '50%', transform: 'translateX(-50%)' }}>
@@ -218,7 +218,7 @@ function SearchMoviePage() {
 
         
     
-    <h2>Results</h2>
+    <p class='font-medium text-2xl my-3'>Results</p>
 
     <DataGrid
     rows={results}
@@ -232,6 +232,7 @@ function SearchMoviePage() {
     }}
     pageSizeOptions={[5, 10, 25]}
     checkboxSelection
+    class='my-6'
   />
  
  
