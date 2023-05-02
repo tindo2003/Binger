@@ -31,7 +31,7 @@ function Copyright(props) {
     >
       {'Copyright © '}
       <Link color="inherit" href="https://mui.com/">
-        Your Website
+        Binger
       </Link>{' '}
       {new Date().getFullYear()}
       {'.'}
@@ -63,6 +63,7 @@ function LoginComponent() {
 
       if (statusCode === 200) {
         let token = res.data.apptoken
+        console.log(token)
         if (token) {
           sessionStorage.setItem('app-token', token)
           setLogin(true)
@@ -76,11 +77,10 @@ function LoginComponent() {
       console.log('lol error is', err)
     }
   }
-  /*
+
   if (login) {
     window.location.replace('/homepage')
   }
-  */
 
   return (
     <ThemeProvider theme={theme}>
@@ -145,10 +145,6 @@ function LoginComponent() {
                 id="password"
                 autoComplete="current-password"
               />
-              <FormControlLabel
-                control={<Checkbox value="remember" color="primary" />}
-                label="Remember me"
-              />
               <Button
                 type="submit"
                 fullWidth
@@ -158,11 +154,6 @@ function LoginComponent() {
                 Sign In
               </Button>
               <Grid container>
-                <Grid item xs>
-                  <Link href="#" variant="body2">
-                    Forgot password?
-                  </Link>
-                </Grid>
                 <Grid item>
                   <Link href="/register" variant="body2">
                     {"Don't have an account? Sign Up"}

@@ -22,12 +22,17 @@ app.get('/movie/:title', routes.movie)
 app.get('/services/:title', routes.servicesShow)
 app.get('/search_shows', routes.search_shows)
 app.get('/streamtop', routes.streamTopTen)
+app.get('/movietop', routes.topHundred)
 app.get('/imdb', routes.imdb)
 app.get('/stream_movie/:title', routes.stream_movie)
 app.get('/search_movies', routes.search_movies)
 
 app.get('/toggleLike/:movieid', routes.toggleLike)
+app.get('/toggleLikeShow/:showTitle', routes.toggleLikeShow)
+
 app.get('/getFavoriteMovies', routes.getFavoriteMovies)
+app.get('/getFavoriteShows', routes.getFavoriteShows)
+
 app.get('/getRecommendations', routes.recommender)
 
 // Test route : remove later
