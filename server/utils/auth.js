@@ -18,6 +18,7 @@ const authenticateUser = (userid) => {
       expiresIn: '3600s',
     })
     // console.log('token', token)
+    console.log('authenticated?')
     return token
   } catch (err) {
     console.log('error', err.message)

@@ -59,12 +59,13 @@ const login = async function (req, res) {
     This returns a user information if the user is logged in
 */
 const authenticated = async function (req, res) {
+  console.log('calling verifyuser 62')
   verifyUser(req.headers.authorization)
     .then((result) => {
       if (result) {
         res.status(200).json({ info: result, success: true })
       } else {
-        res.status(205).json({ success: false })
+        // res.status(205).json({ success: false })
       }
     })
     .catch((err) => {
@@ -123,13 +124,12 @@ const movie = async function (req, res) {
 }
 
 const toggleLike = async function (req, res) {
+  console.log('calling verifyUser line 127')
   verifyUser(req.headers.authorization)
     .then((user) => {
       if (!user) {
         console.log('User is not logged in')
         res.status(400).json({ error: 'user not logged in' })
-
-        return
       }
       const userId = user.userid
 
@@ -161,7 +161,6 @@ const toggleLike = async function (req, res) {
                     res
                       .status(400)
                       .json({ error: "error adding movie to user's favorites" })
-                    return
                   }
                   res.status(200).json({ success: true, likeStatus: true })
                 },
@@ -180,7 +179,6 @@ const toggleLike = async function (req, res) {
                     res.status(400).json({
                       error: "error removing movie from user's favorites",
                     })
-                    return
                   }
                   res.status(200).json({ success: true, likeStatus: false })
                 },
@@ -197,6 +195,7 @@ const toggleLike = async function (req, res) {
 }
 
 const toggleLikeShow = async function (req, res) {
+  console.log('calling verify user 202')
   verifyUser(req.headers.authorization).then((user) => {
     if (!user) {
       console.log('User is not logged in')
@@ -215,7 +214,6 @@ const toggleLikeShow = async function (req, res) {
       (err, data) => {
         if (err) {
           res.status(400)
-          return
         } else {
           // the user has not liked this show
           if (data.length === 0) {
@@ -258,7 +256,6 @@ const recommender = async function (req, res) {
   const user = { userId: '20b03b68-4f2a-4384-a603-1efb98515113' }
   if (!user) {
     res.status(400).json({ error: 'user not logged in' })
-    return
   }
 
   // const userId = user.userId
@@ -292,7 +289,6 @@ const recommender = async function (req, res) {
           if (err) {
             console.log('error getting movie titles', err)
             res.status(400).json({ error: 'error getting movie titles' })
-            return
           }
 
           // Create a mapping of movieIds to movieNames
@@ -337,6 +333,7 @@ function queryAsync(sql, params) {
 }
 
 function getFavoriteMovies(req, res) {
+  console.log('calling verify user 343')
   verifyUser(req.headers.authorization).then((user) => {
     // user is not logged in
     if (!user) {
@@ -350,7 +347,7 @@ function getFavoriteMovies(req, res) {
       (err, data) => {
         if (err) {
           res.status(400)
-          console.log(err)
+          console.log('line 357', err)
         } else {
           res.status(200).send({ data: data })
         }
@@ -767,6 +764,7 @@ const topHundred = async function (req, res) {
 }
 
 const getFavoriteShows = async function (req, res) {
+  console.log('calling verify users 774')
   verifyUser(req.headers.authorization).then((user) => {
     // user is not logged in
     if (!user) {
@@ -790,6 +788,7 @@ const getFavoriteShows = async function (req, res) {
                 return response.data
               })
               .catch((error) => {
+                console.log('i got an error')
                 // Handle error
                 console.error(error)
               })
