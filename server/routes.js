@@ -170,8 +170,8 @@ const toggleLike = async function (req, res) {
 
 const recommender = async function (req, res) {
 
-  //const user = await verifyUser(req.headers.authorization);
-  const user = {"userId": "0efdfc13-e650-4b17-8d77-2787df08b4bc"};
+  const user = await verifyUser(req.headers.authorization);
+  //const user = {"userId": "0efdfc13-e650-4b17-8d77-2787df08b4bc"};
   if(!user){
     res.status(400).json({ error: "user not logged in" });
     return;
