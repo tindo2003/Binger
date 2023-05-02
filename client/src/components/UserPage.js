@@ -89,10 +89,15 @@ function UserPage() {
     async function fetchData() {
       const result1 = await getUserInfo()
 
-      const result2 = await getFavoriteMovie()
+      const intervalId = setInterval(async () => {
+        const result2 = await getFavoriteMovie()
+      }, 5000)
 
-      const result3 = await getFavoriteShow()
+      const intervalId1 = setInterval(async () => {
+        const result3 = await getFavoriteShow()
+      }, 5000)
     }
+
     fetchData()
   }, [])
 
@@ -196,7 +201,7 @@ function UserPage() {
   } else if (isAuthenticated) {
     return (
       <>
-        ;<p className="text-xl font-bold">Loading...</p>
+        ;<p className="text-lg font-bold">Loading...</p>
       </>
     )
   } else {
