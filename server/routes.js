@@ -170,8 +170,8 @@ const toggleLike = async function (req, res) {
 
 const recommender = async function (req, res) {
 
-  const user = await verifyUser(req.headers.authorization);
-  //const user = {"userId": "0efdfc13-e650-4b17-8d77-2787df08b4bc"};
+ // const user = await verifyUser(req.headers.authorization);
+  const user = {"userId": "20b03b68-4f2a-4384-a603-1efb98515113"};
   if(!user){
     res.status(400).json({ error: "user not logged in" });
     return;
@@ -216,17 +216,19 @@ const recommender = async function (req, res) {
                           };
                         });
 
+                        
+
                         updatedData.sort((a, b) => b.mutualLikeCount - a.mutualLikeCount);
 
-                        res.status(200).json({success: true, similarMovies: updatedData});
+                        const ret = updatedData.slice(0, 10);
+
+                        res.status(200).json({success: true, similarMovies: ret});
                       }
     );
   }).catch(err => {
     console.log(err);
     res.status(400).json({error: "there was an error in the recommender: ", err});
   });
-
-
 }
 
 function queryAsync(sql, params) {
