@@ -745,15 +745,23 @@ const search_movies = async function (req, res) {
   if (amazon) selectedPlatforms.push('Amazon')
   if (hulu) selectedPlatforms.push('Hulu')
 
-  let genreConditions = 'AND'
+  let genreConditions = ''
   // genre query
   if (genres.length > 0) {
     genreConditions = genres
       .map((genre) => `(genres LIKE '%${genre}%')`)
       .join(' AND ')
-    genreConditions = ' AND' + genreConditions + ' AND '
+    genreConditions = ' AND' + genreConditions
     // conditions.push(`(${genreConditions})`);
   }
+  let languageConditions;
+
+  if (originalLanguage === '') {
+    languageConditions = '';
+  } else {
+    languageConditions = ` AND original_language = '${originalLanguage}'`
+  }
+
 
   const unionQuery = selectedPlatforms
     .map((platform) => `SELECT * FROM ${platform} WHERE type = 'Movie'`)
@@ -769,7 +777,7 @@ const search_movies = async function (req, res) {
   ), Moovie AS (
     SELECT original_title, budget, genres, original_language, modified_release_year
     FROM Movies
-    WHERE budget <= ${budgetMax} AND budget >= ${budgetMin}  ${genreConditions}  original_language LIKE '%${originalLanguage}%'
+    WHERE budget <= ${budgetMax} AND budget >= ${budgetMin}  ${genreConditions}  ${languageConditions}
   )
   SELECT c.title, m.budget, m.genres, m.original_language, c.description, c.release_year, c.director, c.cast, c.rating
     FROM Combined c JOIN Moovie m ON c.title = m.original_title AND c.release_year = SUBSTRING(m.modified_release_year,1,4)
