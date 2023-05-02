@@ -51,32 +51,36 @@ function LoginComponent() {
   const handleLogin = async (event) => {
     event.preventDefault()
     const data = new FormData(event.currentTarget)
+    try {
+      const res = await axios.post(
+        `http://${config.server_host}:${config.server_port}/login`,
+        {
+          username: data.get('username'),
+          password: data.get('password'),
+        },
+      )
+      const statusCode = res.status
 
-    const res = await axios.post(
-      `http://${config.server_host}:${config.server_port}/login`,
-      {
-        username: data.get('username'),
-        password: data.get('password'),
-      },
-    )
-    const statusCode = res.status
-
-    if (statusCode === 200) {
-      let token = res.data.apptoken
-      if (token) {
-        sessionStorage.setItem('app-token', token)
-        setLogin(true)
-        console.log(login)
+      if (statusCode === 200) {
+        let token = res.data.apptoken
+        if (token) {
+          sessionStorage.setItem('app-token', token)
+          setLogin(true)
+          console.log(login)
+        }
+      } else {
+        console.log(res.data.error)
+        console.log('i am here')
       }
-    } else {
-      console.log(res.data.error)
-      console.log('i am here')
+    } catch (err) {
+      console.log('lol error is', err)
     }
   }
-  
+  /*
   if (login) {
     window.location.replace('/homepage')
   }
+  */
 
   return (
     <ThemeProvider theme={theme}>

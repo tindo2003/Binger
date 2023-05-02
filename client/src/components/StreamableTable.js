@@ -137,7 +137,7 @@ function StreamableTable() {
       {selectedShowName && <StreamMovieCard showName={selectedShowName} handleClose={() => setSelectedShowName(null)} />}
     
     
-    <Grid container spacing={0}>
+    <Grid container spacing={2}>
 
     <Grid item xs={3}>
           <TextField label='Title' value={title} onChange={(e) => setTitle(e.target.value)} style={{ width: "100%" }}/>
@@ -196,81 +196,78 @@ function StreamableTable() {
       </Grid>
 
 
+      <Container class='my-4'>
+        <Grid container spacing={5}>
 
+          <Grid item xs={5}>
+            <p>Budget</p>
+            <Slider
+              value={budget}
+              min={0}
+              max={400000000}
+              step={4000000}
+              onChange={(e, newValue) => setBudget(newValue)}
+              valueLabelDisplay='auto'
+              valueLabelFormat={value => <div> {value} </div>}
+            />
+          </Grid>
 
-      <Grid container spacing={5}>
+          <Grid item xs={5}>
+            <p>Release Year</p>
+            <Slider
+              value={releaseYear}
+              min={1874}
+              max={2023}
+              step={1}
+              onChange={(e, newValue) => setReleaseYear(newValue)}
+              valueLabelDisplay='auto'
+              valueLabelFormat={value => <div>{value}</div>}
+            />
+          </Grid>
 
-      <Grid item xs={5}>
-        <p>Budget</p>
-        <Slider
-          value={budget}
-          min={0}
-          max={400000000}
-          step={4000000}
-          onChange={(e, newValue) => setBudget(newValue)}
-          valueLabelDisplay='auto'
-          valueLabelFormat={value => <div> {value} </div>}
-        />
-      </Grid>
-
-      <Grid item xs={5}>
-        <p>Release Year</p>
-        <Slider
-          value={releaseYear}
-          min={1874}
-          max={2023}
-          step={1}
-          onChange={(e, newValue) => setReleaseYear(newValue)}
-          valueLabelDisplay='auto'
-          valueLabelFormat={value => <div>{value}</div>}
-        />
-      </Grid>
-
-      <Grid item xs={2}>
-          
-            <FormControlLabel control={<Switch onChange={handelChange} name="Amazon"/>}  label="Amazon" />
-            <FormControlLabel control={<Switch onChange={handelChange} name="Disney" />}  label="Disney" />
-            <FormControlLabel control={<Switch onChange={handelChange} name="Hulu" />}  label="Hulu" />
-            <FormControlLabel control={<Switch checked={netflix} onChange={handelChange} name="Netflix" />}  label="Netflix" />
-
-      </Grid>
-
-      <Grid item xs={4}>
-        <TextField label='Director' value={director} onChange={(e) => setDirector(e.target.value)} style={{ width: "100%" }}/>
-      </Grid>
-
-      <Grid item xs={4}>
-        <TextField label='Cast' value={cast} onChange={(e) => setCast([e.target.value])} style={{ width: "100%" }}/>
-      </Grid>
-
-      <Grid item xs={4}>
-      <FormControl fullWidth>
-        <InputLabel id="rating-form">Content Rating</InputLabel>
-        <Select
-          labelId="rating"
-          id="ratingForm"
-          value={rating}
-          label="Age"
-          onChange={(e)=> setRating(e.target.value)}
-        >
-          {movieRatings.map((index) => {
-              if (index === "") {
-                return <MenuItem value={index}>All Ratings</MenuItem>
-              } else {
-                return <MenuItem value={index}>{index}</MenuItem>
-              }
+          <Grid item xs={2}>
               
-            }
-              
-            )}
+                <FormControlLabel control={<Switch onChange={handelChange} name="Amazon"/>}  label="Amazon" />
+                <FormControlLabel control={<Switch onChange={handelChange} name="Disney" />}  label="Disney" />
+                <FormControlLabel control={<Switch onChange={handelChange} name="Hulu" />}  label="Hulu" />
+                <FormControlLabel control={<Switch checked={netflix} onChange={handelChange} name="Netflix" />}  label="Netflix" />
 
-        </Select>
-      </FormControl>
-      </Grid>
+          </Grid>
 
+          <Grid item xs={4}>
+            <TextField label='Director' value={director} onChange={(e) => setDirector(e.target.value)} style={{ width: "100%" }}/>
+          </Grid>
 
+          <Grid item xs={4}>
+            <TextField label='Cast' value={cast} onChange={(e) => setCast([e.target.value])} style={{ width: "100%" }}/>
+          </Grid>
 
-      </Grid>
+          <Grid item xs={4}>
+          <FormControl fullWidth>
+            <InputLabel id="rating-form">Content Rating</InputLabel>
+            <Select
+              labelId="rating"
+              id="ratingForm"
+              value={rating}
+              label="Age"
+              onChange={(e)=> setRating(e.target.value)}
+            >
+              {movieRatings.map((index) => {
+                  if (index === "") {
+                    return <MenuItem value={index}>All Ratings</MenuItem>
+                  } else {
+                    return <MenuItem value={index}>{index}</MenuItem>
+                  }
+                  
+                }
+                  
+                )}
+
+            </Select>
+          </FormControl>
+          </Grid>
+        </Grid>
+      </Container>
 
       <Button onClick={() => search() } style={{ left: '50%', transform: 'translateX(-50%)' }}>
         Search
@@ -284,7 +281,7 @@ function StreamableTable() {
 
             
         
-        <h2>Results</h2>
+        <p class='text-2xl font-medium my-6'>Results</p>
 
         <DataGrid
         rows={results}

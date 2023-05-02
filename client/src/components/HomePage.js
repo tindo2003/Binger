@@ -1,6 +1,8 @@
 import axios from 'axios'
 import React, { useState, useEffect } from 'react'
+import { Container, Divider, Grid} from '@mui/material'
 import { useNavigate, Link } from 'react-router-dom'
+import Typography from '@mui/material/Typography'
 
 const config = require('../config.json')
 
@@ -15,7 +17,7 @@ function HomePage() {
 
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const navigate = useNavigate()
-
+  // run this before the component is rerendered. 
   useEffect(() => {
     const getAuthentication = async () => {
       try {
@@ -42,23 +44,42 @@ function HomePage() {
     getAuthentication()
   }, [])
 
-  if (isAuthenticated) {
-    return <div>Welcome </div>
-  } else {
-    return (
-      <>
-        <p> Your session has expired. Click here to return back to login</p>
-        {
-          <Link
-            className="text-blue-500 hover:underline focus:underline"
-            to="/"
-          >
-            Home
-          </Link>
-        }{' '}
-      </>
-    )
-  }
+  return (
+    <Container class='p-8'>
+      <p class='text-5xl font-bold my-4'>Welcome to BINGER.</p>
+      <p class='text-xl mb-8'>This is your one-stop shop for all your binge-watching needs. Find the content you love.</p>
+      <Divider/>
+      <Container class='mt-8'>
+        <Grid container spacing={1}>
+          <Grid item xs={6}>
+            <p class='text-3xl font-semibold'>Top 10 Movies</p>
+          </Grid>
+          <Grid item xs={6}>
+            <p class='text-3xl font-semibold'>Top 10 Shows</p>
+          </Grid>
+        </Grid>
+      </Container>
+
+    </Container>
+  )
+
+  // if (isAuthenticated) {
+  //   return <div>Welcome </div>
+  // } else {
+  //   return (
+  //     <>
+  //       <p> Your session has expired. Click here to return back to login</p>
+  //       {
+  //         <Link
+  //           className="text-blue-500 hover:underline focus:underline"
+  //           to="/"
+  //         >
+  //           Home
+  //         </Link>
+  //       }{' '}
+  //     </>
+  //   )
+  // }
 }
 
 export default HomePage

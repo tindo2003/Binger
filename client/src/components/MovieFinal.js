@@ -19,12 +19,12 @@ function MovieFinal() {
   }
 
   return (
-    <div>
-      <h2>Search Movies</h2>
-      <FormControlLabel control={<Switch onChange={handleChange} color="secondary"/>} label="View Streamable" />
+    <Container maxWidth="xl">
+      <p class='text-3xl font-semibold mt-10 mb-4'>Search Movies</p>
+      <FormControlLabel control={<Switch onChange={handleChange} color="secondary"/>} label="View Streamable" class='m-6'/>
       {checked && <StreamableTable />}
       {!checked && <SearchMoviePage />}
-      </div>
+    </Container>
   );
    
     
