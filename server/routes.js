@@ -125,20 +125,86 @@ const toggleLike = async function (req, res) {
   verifyUser(req.headers.authorization)
     .then((user) => {
       console.log('ldfjkshdjfh', user)
+      user = { userid: '1' }
       if (!user) {
         console.log('i was here lol ')
         res.status(400).json({ error: 'user not logged in' })
 
         return
       }
-      const userId = user.userid
 
-      const movieid = req.params.movieid
+      const userId = user.userid;
+
+      let movieid = req.params.movieid;
+
+      
+
       console.log(movieid)
 
       //checks if the user has already liked the movie
 
-      connection.query(
+      
+         
+          connection.query(
+            `SELECT * 
+                          FROM FavMovies2
+                          WHERE user_id = '${userId}' AND movieid = ${movieid}`,
+            (err, data) => {
+              if (err) {
+                console.log('error checking if user has liked movie', err)
+                res
+                  .status(400)
+                  .json({ error: 'error checking if user has liked movie' })
+                return
+              } else {
+                if (data.length === 0) {
+                  console.log('liked the movie')
+                  //user has not liked the movie yet
+                  connection.query(
+                    `INSERT INTO FavMovies2 (user_id, movieid) VALUES ('${userId}', ${movieid})`,
+                    (err, data) => {
+                      if (err) {
+                        console.log("error adding movie to user's favorites", err)
+                        res
+                          .status(400)
+                          .json({ error: "error adding movie to user's favorites" })
+                        return
+                      }
+                      res.status(200).json({ success: true, likeStatus: true })
+                    },
+                  )
+                } else {
+                  //user has already liked the movie
+                  console.log('disliked the movie')
+                  connection.query(
+                    `DELETE FROM FavMovies2 WHERE user_id = '${userId}' AND movieid = '${movieid}'`,
+                    (err, data) => {
+                      if (err) {
+                        console.log(
+                          "error removing movie from user's favorites",
+                          err,
+                        )
+                        res.status(400).json({
+                          error: "error removing movie from user's favorites",
+                        })
+                        return
+                      }
+                      res.status(200).json({ success: true, likeStatus: false })
+                    },
+                  )
+                }
+              }
+            },
+          )
+        })}
+
+
+        
+      
+      
+
+
+      /*connection.query(
         `SELECT * 
                       FROM FavMovies
                       WHERE userid = '${userId}' AND movieid = ${movieid}`,
@@ -191,10 +257,10 @@ const toggleLike = async function (req, res) {
       )
     })
     .catch((error) => {
-      res.status(400).json({ success: false })
-    })
+      res.status(400).json({ success: false })*/
+    
   //const user = {"userId": "0efdfc13-e650-4b17-8d77-2787df08b4bc"};
-}
+
 
 const recommender = async function (req, res) {
 

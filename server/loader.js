@@ -128,7 +128,8 @@ const undoSetup = async function() {
     console.log('Undo setup complete.');
 };
  
-setup();
+undoSetup();
+
 
 
 
