@@ -5,6 +5,7 @@ const { authenticateUser, verifyUser } = require('./utils/auth')
 
 const mysql = require('mysql')
 const config = require('./config.json')
+const { default: axios } = require('axios')
 
 const connection = mysql.createConnection({
   host: config.rds_host,
@@ -124,9 +125,8 @@ const movie = async function (req, res) {
 const toggleLike = async function (req, res) {
   verifyUser(req.headers.authorization)
     .then((user) => {
-      console.log('ldfjkshdjfh', user)
       if (!user) {
-        console.log('i was here lol ')
+        console.log('User is not logged in')
         res.status(400).json({ error: 'user not logged in' })
 
         return
@@ -196,13 +196,69 @@ const toggleLike = async function (req, res) {
   //const user = {"userId": "0efdfc13-e650-4b17-8d77-2787df08b4bc"};
 }
 
-const recommender = async function (req, res) {
+const toggleLikeShow = async function (req, res) {
+  verifyUser(req.headers.authorization).then((user) => {
+    if (!user) {
+      console.log('User is not logged in')
+      res.status(400).json({ error: 'user not logged in' })
 
- // const user = await verifyUser(req.headers.authorization);
-  const user = {"userId": "20b03b68-4f2a-4384-a603-1efb98515113"};
-  if(!user){
-    res.status(400).json({ error: "user not logged in" });
-    return;
+      return
+    }
+    const userId = user.userid
+
+    const showTitle = req.params.showTitle
+
+    console.log(showTitle)
+
+    connection.query(
+      `SELECT * FROM FavShows WHERE userid = '${userId}' AND show_title = '${showTitle}'`,
+      (err, data) => {
+        if (err) {
+          res.status(400)
+          return
+        } else {
+          // the user has not liked this show
+          if (data.length === 0) {
+            connection.query(
+              `INSERT INTO FavShows (userid, show_title) VALUES ('${userId}', '${showTitle}')`,
+              (err, data) => {
+                if (err) {
+                  console.log(err)
+                  console.log('error when inserting into FavShows table')
+                  res.status(400).send({})
+                } else {
+                  res.status(200).send({ success: true })
+                }
+              },
+            )
+          } else {
+            // the user liked this show
+            connection.query(
+              `DELETE FROM FavShows
+              WHERE userid = '${userId}' AND show_title = '${showTitle}';`,
+              (err, data) => {
+                if (err) {
+                  console.log(err)
+                  console.log('error when inserting into FavShows table')
+                  res.status(400).send({})
+                } else {
+                  res.status(200).send({ success: true })
+                }
+              },
+            )
+          }
+        }
+      },
+    )
+  })
+}
+
+const recommender = async function (req, res) {
+  // const user = await verifyUser(req.headers.authorization);
+  const user = { userId: '20b03b68-4f2a-4384-a603-1efb98515113' }
+  if (!user) {
+    res.status(400).json({ error: 'user not logged in' })
+    return
   }
 
   // const userId = user.userId
@@ -244,27 +300,28 @@ const recommender = async function (req, res) {
             movieNames.map((movie) => [movie.id, movie.original_title]),
           )
 
-                        // Update data with movie names
-                        const updatedData = data.map(movie => {
-                          return {
-                            ...movie,
-                            movieName: movieNameMap.get(movie.movieid)
-                          };
-                        });
+          // Update data with movie names
+          const updatedData = data.map((movie) => {
+            return {
+              ...movie,
+              movieName: movieNameMap.get(movie.movieid),
+            }
+          })
 
-                        
+          updatedData.sort((a, b) => b.mutualLikeCount - a.mutualLikeCount)
 
-                        updatedData.sort((a, b) => b.mutualLikeCount - a.mutualLikeCount);
+          const ret = updatedData.slice(0, 10)
 
-                        const ret = updatedData.slice(0, 10);
-
-                        res.status(200).json({success: true, similarMovies: ret});
-                      }
-    );
-  }).catch(err => {
-    console.log(err);
-    res.status(400).json({error: "there was an error in the recommender: ", err});
-  });
+          res.status(200).json({ success: true, similarMovies: ret })
+        },
+      )
+    })
+    .catch((err) => {
+      console.log(err)
+      res
+        .status(400)
+        .json({ error: 'there was an error in the recommender: ', err })
+    })
 }
 
 function queryAsync(sql, params) {
@@ -705,8 +762,54 @@ const topHundred = async function (req, res) {
       } else {
         res.json(data)
       }
-    }
+    },
   )
+}
+
+const getFavoriteShows = async function (req, res) {
+  verifyUser(req.headers.authorization).then((user) => {
+    // user is not logged in
+    if (!user) {
+      res.status(400).send({ success: false })
+    }
+    const userid = user.userid
+    connection.query(
+      `SELECT show_title FROM FavShows WHERE userid='${userid}'`,
+      (err, data) => {
+        if (err) {
+          res.status(400)
+          console.log(err)
+        } else {
+          const promises = data.map((item) => {
+            show_title = item.show_title
+
+            return axios
+              .get(`http://localhost:8080/show/${show_title}`)
+              .then((response) => {
+                // console.log(response.data)
+                return response.data
+              })
+              .catch((error) => {
+                // Handle error
+                console.error(error)
+              })
+          })
+
+          Promise.all(promises)
+            .then((results) => {
+              // Handle array of responses from all promises
+              // console.log('Results:', results)
+              res.status(200).send(results)
+            })
+            .catch((error) => {
+              // Handle errors from any promise
+              console.error(error)
+              res.status(500).json({ error: 'Internal server error' })
+            })
+        }
+      },
+    )
+  })
 }
 
 // Test code
@@ -728,4 +831,6 @@ module.exports = {
   recommender,
   topHundred,
   getFavoriteMovies,
+  toggleLikeShow,
+  getFavoriteShows,
 }

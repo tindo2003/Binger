@@ -13,14 +13,17 @@ import {
   TableRow,
 } from '@mui/material'
 import MovieCard from './MovieCard'
+import ShowCard from './ShowCard'
 
 const config = require('../config.json')
 
 function UserPage() {
   const [userData, setUserData] = useState(null)
   const [favMovie, setFavMovie] = useState(null)
+  const [favShow, setFavShow] = useState(null)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [selectedMovieId, setSelectedMovieID] = useState(null)
+  const [selectedShowTitle, setSelectedShowTitle] = useState(null)
   const getUserInfo = async () => {
     try {
       const res = await axios.get(
@@ -66,22 +69,40 @@ function UserPage() {
       console.log('error is', error)
     }
   }
+  const getFavoriteShow = async () => {
+    try {
+      const res = await axios.get(
+        `http://${config.server_host}:${config.server_port}/getFavoriteShows`,
+        {
+          headers: {
+            authorization: sessionStorage.getItem('app-token'),
+          },
+        },
+      )
+      console.log(res.data)
+      setFavShow(res.data)
+    } catch (error) {
+      console.log('error is', error)
+    }
+  }
   useEffect(() => {
     async function fetchData() {
       const result1 = await getUserInfo()
 
       const result2 = await getFavoriteMovie()
+
+      const result3 = await getFavoriteShow()
     }
     fetchData()
   }, [])
 
-  if (isAuthenticated && favMovie) {
+  if (isAuthenticated && favMovie && favShow) {
     return (
       <>
         <div className="flex flex-col">
           <div className="flex flex-row">
             <div className="mx-auto mt-5 text-2xl font-bold">
-              Welcome {userData.first_name} {userData.last_name}
+              Welcome {userData.first_name} {userData.last_name}!
             </div>
             <button
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
@@ -90,7 +111,6 @@ function UserPage() {
               Logout
             </button>
           </div>
-
           <Container className="mt-5">
             <p className="text-xl font-medium">Your favorite movie is: </p>
             {selectedMovieId && (
@@ -105,7 +125,7 @@ function UserPage() {
                 <TableHead>
                   <TableRow>
                     <TableCell key="Title">Title</TableCell>
-                    <TableCell key="Genres">Plays</TableCell>
+                    <TableCell key="Genres">Genres</TableCell>
                     <TableCell key="Language">Language</TableCell>
                   </TableRow>
                 </TableHead>
@@ -125,6 +145,45 @@ function UserPage() {
                       <TableCell key="Language">
                         {myMovie.original_language}
                       </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Container>
+          {/* Another container */}
+
+          <Container className="mt-5">
+            <p className="text-xl font-medium">Your favorite show is: </p>
+            {selectedShowTitle && (
+              <ShowCard
+                showName={selectedShowTitle}
+                handleClose={() => setSelectedShowTitle(null)}
+              />
+            )}
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell key="Title">Title</TableCell>
+                    <TableCell key="release_year">Release Year</TableCell>
+                    <TableCell key="streaming">streaming</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {favShow.map((myShow) => (
+                    <TableRow key={myShow.show_id}>
+                      <TableCell key="Title">
+                        <Link
+                          onClick={() => setSelectedShowTitle(myShow.title)}
+                        >
+                          {myShow.title}
+                        </Link>
+                      </TableCell>
+                      <TableCell key="release_year">
+                        {myShow.release_year}
+                      </TableCell>
+                      <TableCell key="streaming">{myShow.streaming}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

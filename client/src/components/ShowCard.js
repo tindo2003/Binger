@@ -55,15 +55,14 @@ export default function ShowCard({ showName, handleClose }) {
   };
   */
   const handleLike = async () => {
-    /*
     const res = await axios.get(
-      `http://${config.server_host}:${config.server_port}/toggleLike/${showData.id}`,
+      `http://${config.server_host}:${config.server_port}/toggleLikeShow/${showData.title}`,
       {
         headers: {
           authorization: sessionStorage.getItem('app-token'),
         },
       },
-    ) */
+    )
   }
   return (
     <Modal
