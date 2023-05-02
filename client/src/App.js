@@ -6,6 +6,7 @@ import SignUP from './components/Signup'
 import HomePage from './components/HomePage'
 import SearchPage from './components/SearchPage'
 import MovieFinal from './components/MovieFinal'
+import UserPage from './components/UserPage'
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
               <Route path="/homepage" element={<HomePage />} />
               <Route path="/search" element={<SearchPage />} />
               <Route path="/moviefinal" element={<MovieFinal />} />
+              <Route path="/mypage" element={<UserPage />} />
             </Routes>
           </article>
         </section>
