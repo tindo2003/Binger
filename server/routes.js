@@ -423,8 +423,8 @@ function getFavoriteMovies(req, res) {
     const userid = user.userid
     connection.query(
       `SELECT * \
-      FROM FavMovies F JOIN Movies ON F.movieid = Movies.id \
-      WHERE F.userid = '${userid}';`,
+      FROM FavMovies2 F JOIN Movies ON F.movieid = Movies.id \
+      WHERE F.user_id = '${userid}';`,
       (err, data) => {
         if (err) {
           res.status(400)
