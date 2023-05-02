@@ -17,7 +17,7 @@ function HomePage() {
 
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const navigate = useNavigate()
-
+  // run this before the component is rerendered. 
   useEffect(() => {
     const getAuthentication = async () => {
       try {
