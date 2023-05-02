@@ -197,15 +197,13 @@ const toggleLike = async function (req, res) {
 }
 
 const recommender = async function (req, res) {
-  verifyUser(req.headers.authorization).then((user) => {
-    if (user) {
-      const userId = user.userId
-    } else {
-      res.status(400).json({ error: 'user not logged in' })
-      return
-    }
-  })
-  //const user = {"userId": "0efdfc13-e650-4b17-8d77-2787df08b4bc"};
+
+ // const user = await verifyUser(req.headers.authorization);
+  const user = {"userId": "20b03b68-4f2a-4384-a603-1efb98515113"};
+  if(!user){
+    res.status(400).json({ error: "user not logged in" });
+    return;
+  }
 
   // const userId = user.userId
 
@@ -246,26 +244,27 @@ const recommender = async function (req, res) {
             movieNames.map((movie) => [movie.id, movie.original_title]),
           )
 
-          // Update data with movie names
-          const updatedData = data.map((movie) => {
-            return {
-              ...movie,
-              movieName: movieNameMap.get(movie.movieid),
-            }
-          })
+                        // Update data with movie names
+                        const updatedData = data.map(movie => {
+                          return {
+                            ...movie,
+                            movieName: movieNameMap.get(movie.movieid)
+                          };
+                        });
 
-          updatedData.sort((a, b) => b.mutualLikeCount - a.mutualLikeCount)
+                        
 
-          res.status(200).json({ success: true, similarMovies: updatedData })
-        },
-      )
-    })
-    .catch((err) => {
-      console.log(err)
-      res
-        .status(400)
-        .json({ error: 'there was an error in the recommender: ', err })
-    })
+                        updatedData.sort((a, b) => b.mutualLikeCount - a.mutualLikeCount);
+
+                        const ret = updatedData.slice(0, 10);
+
+                        res.status(200).json({success: true, similarMovies: ret});
+                      }
+    );
+  }).catch(err => {
+    console.log(err);
+    res.status(400).json({error: "there was an error in the recommender: ", err});
+  });
 }
 
 function queryAsync(sql, params) {
@@ -691,6 +690,25 @@ const streamTopTen = async function (req, res) {
   )
 }
 
+const topHundred = async function (req, res) {
+  connection.query(
+    `SELECT Movies.id, Movies.original_title AS Title, AVG(Ratings.rating) as AverageRating
+    FROM Movies
+    JOIN Ratings ON Ratings.movieId = Movies.id
+    GROUP BY Movies.id
+    ORDER BY AverageRating DESC
+    LIMIT 100;
+    `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        res.json([])
+      } else {
+        res.json(data)
+      }
+    }
+  )
+}
+
 // Test code
 
 module.exports = {
@@ -708,5 +726,6 @@ module.exports = {
   search_movies,
   toggleLike,
   recommender,
+  topHundred,
   getFavoriteMovies,
 }
