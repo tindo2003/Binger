@@ -63,6 +63,7 @@ function LoginComponent() {
 
       if (statusCode === 200) {
         let token = res.data.apptoken
+        console.log(token)
         if (token) {
           sessionStorage.setItem('app-token', token)
           setLogin(true)
@@ -76,11 +77,10 @@ function LoginComponent() {
       console.log('lol error is', err)
     }
   }
-  /*
+
   if (login) {
     window.location.replace('/homepage')
   }
-  */
 
   return (
     <ThemeProvider theme={theme}>

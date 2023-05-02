@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import { useNavigate, Link } from 'react-router-dom'
+import NavBar from './NavBar'
+
 import {
   Container,
   Table,
@@ -41,6 +43,13 @@ function UserPage() {
       console.log('error is', error)
     }
   }
+
+  const handleLogout = () => {
+    // detele the JWT
+    sessionStorage.removeItem('app-token')
+    // relaunch the app
+    window.location.reload(true)
+  }
   const getFavoriteMovie = async () => {
     try {
       const res = await axios.get(
@@ -70,8 +79,16 @@ function UserPage() {
     return (
       <>
         <div className="flex flex-col">
-          <div className="mx-auto mt-5 text-2xl font-bold">
-            Welcome {userData.first_name} {userData.last_name}
+          <div className="flex flex-row">
+            <div className="mx-auto mt-5 text-2xl font-bold">
+              Welcome {userData.first_name} {userData.last_name}
+            </div>
+            <button
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+              onClick={handleLogout}
+            >
+              Logout
+            </button>
           </div>
 
           <Container className="mt-5">
@@ -89,7 +106,7 @@ function UserPage() {
                   <TableRow>
                     <TableCell key="Title">Title</TableCell>
                     <TableCell key="Genres">Plays</TableCell>
-                    <TableCell key="Language">Duration</TableCell>
+                    <TableCell key="Language">Language</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -115,6 +132,12 @@ function UserPage() {
             </TableContainer>
           </Container>
         </div>
+      </>
+    )
+  } else if (isAuthenticated) {
+    return (
+      <>
+        ;<p className="text-xl font-bold">Loading...</p>
       </>
     )
   } else {
