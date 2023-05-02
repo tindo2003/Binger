@@ -620,6 +620,25 @@ const streamTopTen = async function (req, res) {
   )
 }
 
+const topHundred = async function (req, res) {
+  connection.query(
+    `SELECT Movies.id, Movies.original_title AS Title, AVG(Ratings.rating) as AverageRating
+    FROM Movies
+    JOIN Ratings ON Ratings.movieId = Movies.id
+    GROUP BY Movies.id
+    ORDER BY AverageRating DESC
+    LIMIT 100;
+    `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        res.json([])
+      } else {
+        res.json(data)
+      }
+    }
+  )
+}
+
 // Test code
 
 module.exports = {
@@ -637,4 +656,5 @@ module.exports = {
   search_movies,
   toggleLike,
   recommender,
+  topHundred
 }
