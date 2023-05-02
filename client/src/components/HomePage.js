@@ -24,7 +24,7 @@ function HomePage() {
   const [selectedStream, setSelectedStream] = useState(null);
   const [selectedMovie, setSelectedMovie] = useState(null);
   const navigate = useNavigate()
-
+  // run this before the component is rerendered. 
   useEffect(() => {
     fetch(`http://${config.server_host}:${config.server_port}/streamtop?service=${platform}`)
       .then(res => res.json())

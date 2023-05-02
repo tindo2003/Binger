@@ -12,6 +12,7 @@ import {
 import { NavLink } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { icon } from '@fortawesome/fontawesome-svg-core/import.macro'
+import axios from 'axios'
 
 // import { formatDuration } from '../helpers/formatter';
 const config = require('../config.json')
@@ -26,8 +27,15 @@ export default function MovieCard({ showName, handleClose }) {
   // const [albumData, setAlbumData] = useState({});
 
   // const [barRadar, setBarRadar] = useState(true);
-  const handleLike = () => {
-    console.log('Hello world')
+  const handleLike = async () => {
+    const res = await axios.get(
+      `http://${config.server_host}:${config.server_port}/toggleLike/${showData.id}`,
+      {
+        headers: {
+          authorization: sessionStorage.getItem('app-token'),
+        },
+      },
+    )
   }
   useEffect(() => {
     fetch(
@@ -37,7 +45,6 @@ export default function MovieCard({ showName, handleClose }) {
       .then((resJson) => {
         console.log(resJson)
         setShowData(resJson)
-        // const albumId = resJson.album_id;
       })
   }, [])
   /*

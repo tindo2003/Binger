@@ -33,13 +33,14 @@ const signUp = async function (
 const logIn = function (username, password) {
   return new Promise((resolve, reject) => {
     connection.query(
-      `SELECT password, userid FROM Users WHERE username = '${username}';`,
+      `SELECT password, userid FROM Users WHERE username = '${username}' LIMIT 1;`,
       (err, data) => {
+        console.log(data)
         if (err) {
           return reject(err)
         } else {
-          console.log('my data is', data[0])
           if (data[0].password === password.toString()) {
+            console.log('password matched!')
             resolve(data[0].userid)
           }
         }

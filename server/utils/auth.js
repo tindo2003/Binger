@@ -15,7 +15,7 @@ const { getUserByUserId } = require('../model/DBOperations')
 const authenticateUser = (userid) => {
   try {
     const token = jwt.sign({ userid: userid }, process.env.KEY, {
-      expiresIn: '120s',
+      expiresIn: '3600s',
     })
     // console.log('token', token)
     return token
@@ -40,9 +40,9 @@ const verifyUser = async (token) => {
     if (!user) {
       // user is undefined
       console.log('User can not be verified')
-      return user;
+      return user
     }
-    return user;
+    return user
   } catch (err) {
     // invalid token
     console.log('error', err.message)
