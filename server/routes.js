@@ -327,13 +327,13 @@ const recommender = async function (req, res) {
   // const user = await verifyUser(req.headers.authorization);
 
   verifyUser(req.headers.authorization).then((user) => {
-   user = { userId: '006d3fd9-7657-46af-9937-0d370351b599' }
+   //user = { userId: '006d3fd9-7657-46af-9937-0d370351b599' }
   if (!user) {
     res.status(400).json({ error: 'user not logged in' })
     
   } else{
-   const userId = user.userId
-   console.log(userId);
+   const userId = user.userid
+   //console.log("user",user);
 
   queryAsync(`SELECT * FROM FavMovies2 WHERE user_id = ?`, [userId])
     .then((data) => {
@@ -352,11 +352,11 @@ const recommender = async function (req, res) {
       SELECT fm2.movieid, COUNT(fm2.user_id) as mutualLikeCount
       FROM FavMovies2 as fm1
       JOIN FavMovies2 as fm2 ON fm1.user_id = fm2.user_id
-      WHERE fm1.movieid IN (SELECT movieid FROM FavMovies2 WHERE user_id = ?) AND fm1.user_id != ? AND fm2.movieid != fm1.movieid
+      WHERE fm1.movieid IN (SELECT movieid FROM FavMovies2 WHERE user_id = ?) AND fm1.user_id != ? AND fm2.movieid NOT IN (SELECT movieid FROM FavMovies2 WHERE user_id = ?)
       GROUP BY fm2.movieid
       ORDER BY mutualLikeCount DESC
     `,
-        [userId, userId],
+        [userId, userId, userId],
       )}
     })
     .then((data) => {
