@@ -59,12 +59,13 @@ const login = async function (req, res) {
     This returns a user information if the user is logged in
 */
 const authenticated = async function (req, res) {
+  console.log('calling verifyuser 62')
   verifyUser(req.headers.authorization)
     .then((result) => {
       if (result) {
         res.status(200).json({ info: result, success: true })
       } else {
-        res.status(205).json({ success: false })
+        // res.status(205).json({ success: false })
       }
     })
     .catch((err) => {
@@ -123,6 +124,7 @@ const movie = async function (req, res) {
 }
 
 const toggleLike = async function (req, res) {
+  console.log('calling verifyUser line 127')
   verifyUser(req.headers.authorization)
     .then((user) => {
       if (!user) {
@@ -159,6 +161,7 @@ const toggleLike = async function (req, res) {
                 if (data.length === 0) {
                   console.log('liked the movie')
                   //user has not liked the movie yet
+                  console.log(movieid);
                   connection.query(
                     `INSERT INTO FavMovies2 (user_id, movieid) VALUES ('${userId}', ${movieid})`,
                     (err, data) => {
@@ -226,7 +229,6 @@ const toggleLike = async function (req, res) {
                     res
                       .status(400)
                       .json({ error: "error adding movie to user's favorites" })
-                    return
                   }
                   res.status(200).json({ success: true, likeStatus: true })
                 },
@@ -245,7 +247,6 @@ const toggleLike = async function (req, res) {
                     res.status(400).json({
                       error: "error removing movie from user's favorites",
                     })
-                    return
                   }
                   res.status(200).json({ success: true, likeStatus: false })
                 },
@@ -262,6 +263,7 @@ const toggleLike = async function (req, res) {
 
 
 const toggleLikeShow = async function (req, res) {
+  console.log('calling verify user 202')
   verifyUser(req.headers.authorization).then((user) => {
     if (!user) {
       console.log('User is not logged in')
@@ -318,38 +320,53 @@ const toggleLikeShow = async function (req, res) {
   })
 }
 
+
+
+
 const recommender = async function (req, res) {
   // const user = await verifyUser(req.headers.authorization);
 
   verifyUser(req.headers.authorization).then((user) => {
-  //const user = { userId: '20b03b68-4f2a-4384-a603-1efb98515113' }
+   user = { userId: '006d3fd9-7657-46af-9937-0d370351b599' }
   if (!user) {
     res.status(400).json({ error: 'user not logged in' })
-    return
-  }
-
+    
+  } else{
    const userId = user.userId
+   console.log(userId);
 
-  queryAsync(`SELECT * FROM FavMovies WHERE userid = ?`, [userId])
+  queryAsync(`SELECT * FROM FavMovies2 WHERE user_id = ?`, [userId])
     .then((data) => {
       const movieIds = data.map((movie) => movie.movieid)
+      
+      if(movieIds.length === 0) {
+        res.status(200).json({ success: true, similarMovies: [], message:"no likes from user" });
+        
+      }else{
+
+      console.log('movieIds', movieIds)
 
       // Get movies also liked by the similar users
       return queryAsync(
         `
-      SELECT fm2.movieid, COUNT(fm2.userid) as mutualLikeCount
-      FROM FavMovies as fm1
-      JOIN FavMovies as fm2 ON fm1.userid = fm2.userid
-      WHERE fm1.movieid IN (?) AND fm1.userid != ? AND fm2.movieid != fm1.movieid
+      SELECT fm2.movieid, COUNT(fm2.user_id) as mutualLikeCount
+      FROM FavMovies2 as fm1
+      JOIN FavMovies2 as fm2 ON fm1.user_id = fm2.user_id
+      WHERE fm1.movieid IN (SELECT movieid FROM FavMovies2 WHERE user_id = ?) AND fm1.user_id != ? AND fm2.movieid != fm1.movieid
       GROUP BY fm2.movieid
       ORDER BY mutualLikeCount DESC
     `,
-        [movieIds, userId],
-      )
+        [userId, userId],
+      )}
     })
     .then((data) => {
+      
       const movieIds = data.map((movie) => movie.movieid)
-
+      
+      if (movieIds.length === 0) {
+        res.status(200).json({ success: true, data: [], message: "no recommendations to be made" })
+        
+      } else{
       connection.query(
         `SELECT id, original_title 
                       FROM Movies
@@ -381,14 +398,12 @@ const recommender = async function (req, res) {
 
           res.status(200).json({ success: true, similarMovies: ret })
         },
-      )
+      )}
     })
     .catch((err) => {
       console.log(err)
-      res
-        .status(400)
-        .json({ error: 'there was an error in the recommender: ', err })
-    }) 
+    
+    })} 
   })
 }
 
@@ -405,6 +420,7 @@ function queryAsync(sql, params) {
 }
 
 function getFavoriteMovies(req, res) {
+  console.log('calling verify user 343')
   verifyUser(req.headers.authorization).then((user) => {
     // user is not logged in
     if (!user) {
@@ -413,12 +429,12 @@ function getFavoriteMovies(req, res) {
     const userid = user.userid
     connection.query(
       `SELECT * \
-      FROM FavMovies F JOIN Movies ON F.movieid = Movies.id \
-      WHERE F.userid = '${userid}';`,
+      FROM FavMovies2 F JOIN Movies ON F.movieid = Movies.id \
+      WHERE F.user_id = '${userid}';`,
       (err, data) => {
         if (err) {
           res.status(400)
-          console.log(err)
+          console.log('line 357', err)
         } else {
           res.status(200).send({ data: data })
         }
@@ -843,6 +859,7 @@ const topHundred = async function (req, res) {
 }
 
 const getFavoriteShows = async function (req, res) {
+  console.log('calling verify users 774')
   verifyUser(req.headers.authorization).then((user) => {
     // user is not logged in
     if (!user) {
@@ -866,6 +883,7 @@ const getFavoriteShows = async function (req, res) {
                 return response.data
               })
               .catch((error) => {
+                console.log('i got an error')
                 // Handle error
                 console.error(error)
               })

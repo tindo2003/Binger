@@ -11,6 +11,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Divider,
 } from '@mui/material'
 import MovieCard from './MovieCard'
 import ShowCard from './ShowCard'
@@ -79,7 +80,7 @@ function UserPage() {
           },
         },
       )
-      console.log(res.data)
+      console.log('my shows are', res.data)
       setFavShow(res.data)
     } catch (error) {
       console.log('error is', error)
@@ -106,18 +107,18 @@ function UserPage() {
       <>
         <div className="flex flex-col">
           <div className="flex flex-row">
-            <div className="mx-auto mt-5 text-2xl font-bold">
+            <div className="mx-auto mt-7 text-3xl font-bold">
               Welcome {userData.first_name} {userData.last_name}!
             </div>
             <button
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 m-4 rounded"
               onClick={handleLogout}
             >
               Logout
             </button>
           </div>
-          <Container className="mt-5">
-            <p className="text-xl font-medium">Your favorite movie is: </p>
+          <Container className="my-6">
+            <p className="text-xl font-medium">Your favorite movies are: </p>
             {selectedMovieId && (
               <MovieCard
                 showName={selectedMovieId}
@@ -157,9 +158,8 @@ function UserPage() {
             </TableContainer>
           </Container>
           {/* Another container */}
-
-          <Container className="mt-5">
-            <p className="text-xl font-medium">Your favorite show is: </p>
+          <Container className="my-6">
+            <p className="text-xl font-medium">Your favorite shows are: </p>
             {selectedShowTitle && (
               <ShowCard
                 showName={selectedShowTitle}
@@ -172,7 +172,7 @@ function UserPage() {
                   <TableRow>
                     <TableCell key="Title">Title</TableCell>
                     <TableCell key="release_year">Release Year</TableCell>
-                    <TableCell key="streaming">streaming</TableCell>
+                    <TableCell key="date_added">date_added</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -188,7 +188,9 @@ function UserPage() {
                       <TableCell key="release_year">
                         {myShow.release_year}
                       </TableCell>
-                      <TableCell key="streaming">{myShow.streaming}</TableCell>
+                      <TableCell key="date_added">
+                        {myShow.date_added}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -201,17 +203,17 @@ function UserPage() {
   } else if (isAuthenticated) {
     return (
       <>
-        ;<p className="text-lg font-bold">Loading...</p>
+        <p className="m-8 text-lg font-bold">Loading...</p>
       </>
     )
   } else {
     return (
-      <>
+      <Container className='p-8'>
         <p> Your session has expired. Click here to return back to login</p>
         <Link className="text-blue-500 hover:underline focus:underline" to="/">
-          Home
+          Login
         </Link>
-      </>
+      </Container>
     )
   }
 }

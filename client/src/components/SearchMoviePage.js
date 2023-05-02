@@ -133,11 +133,11 @@ function SearchMoviePage() {
       ),
     },
     // { field: 'original_title', headerName: 'Title' },
-    { field: 'budget', headerName: 'Budget' },
-    { field: 'genres', headerName: 'Genres' },
-    { field: 'original_language', headerName: 'Language' },
-    { field: 'overview', headerName: 'Description' },
-    { field: 'modified_release_year', headerName: 'Release Year' },
+    { field: 'budget', width: 150, headerName: 'Budget' },
+    { field: 'genres', width: 200, headerName: 'Genres' },
+    { field: 'original_language', width: 100, headerName: 'Language' },
+    { field: 'overview', width: 250, headerName: 'Description' },
+    { field: 'modified_release_year', width: 200, headerName: 'Release Year' },
   ]
 
   return (
@@ -264,7 +264,6 @@ function SearchMoviePage() {
             },
           }}
           pageSizeOptions={[5, 10, 25]}
-          checkboxSelection
           class="my-6"
         />
       </Container>

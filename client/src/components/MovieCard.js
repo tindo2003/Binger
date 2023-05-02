@@ -28,6 +28,7 @@ export default function MovieCard({ showName, handleClose }) {
 
   // const [barRadar, setBarRadar] = useState(true);
   const handleLike = async () => {
+    console.log("hello;");
     const res = await axios.get(
       `http://${config.server_host}:${config.server_port}/toggleLike/${showData.id}`,
       {
@@ -79,14 +80,13 @@ export default function MovieCard({ showName, handleClose }) {
           width: 600,
         }}
       >
-        <Typography variant="h2">{showData.original_title}</Typography>
-        <h2>Budget: {showData.budget !== 0 ? showData.budget : 'N/A'}</h2>
-
-        <p>Genres: {showData.genres}</p>
-        <p>Language: {showData.original_language} </p>
-        <p>Description: {showData.overview}</p>
+        <Typography variant="h2" className='my-3'>{showData.original_title}</Typography>
+        <p className='my-1'><b>Budget:</b> {showData.budget !== 0 ? showData.budget : 'N/A'}</p>
+        <p className='my-1'><b>Genres:</b> {showData.genres}</p>
+        <p className='my-1'><b>Language:</b> {showData.original_language} </p>
+        <p className='my-1'><b>Description:</b> {showData.overview}</p>
         {showData && showData.modified_release_year && (
-          <p>Release Year: {showData.modified_release_year.slice(0, 4)}</p>
+          <p className='my-1'><b>Release Year:</b> {showData.modified_release_year.slice(0, 4)}</p>
         )}
         <span className="clickable hover:bg-orange-300" onClick={handleLike}>
           <FontAwesomeIcon

@@ -294,7 +294,6 @@ function StreamableTable() {
           },
         }}
         pageSizeOptions={[5, 10, 25]}
-        checkboxSelection
       />
      
             

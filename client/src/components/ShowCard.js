@@ -55,7 +55,9 @@ export default function ShowCard({ showName, handleClose }) {
   };
   */
   const handleLike = async () => {
+    console.log("hello");
     const res = await axios.get(
+      
       `http://${config.server_host}:${config.server_port}/toggleLikeShow/${showData.title}`,
       {
         headers: {
@@ -97,11 +99,11 @@ export default function ShowCard({ showName, handleClose }) {
         <p>Genres: {showData.listed_in ?? 'N/A'} </p>
         <p>Description: {showData.description ?? 'N/A'}</p>
         <p>Streaming On: {commaSeparated(streamingData)}</p>
-        <span className="clickable hover:bg-orange-300" onClick={handleLike}>
+     <span className="clickable hover:bg-orange-300" onClick={handleLike}>
           <FontAwesomeIcon
             icon={icon({ name: 'heart', style: 'regular' })}
             color="red"
-          />
+          /> 
         </span>
         <Button
           onClick={handleClose}
