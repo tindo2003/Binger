@@ -58,7 +58,7 @@ const connection = mysql.createConnection({
 
                 try {
                     console.log("(",userId,","  ,movieId,")");
-                    await connection.query(`INSERT INTO FavMovies (userid, movieid) VALUES (?, ?)`, [userId, movieId]);
+                    await connection.query(`INSERT INTO FavMovies2 (user_id, movieid) VALUES (?, ?)`, [userId, movieId]);
                     
                 } catch (err) {
                     
@@ -90,7 +90,7 @@ undoLoadRatings = async function () {
 
                 try {
                 
-                    await connection.query(`DELETE FROM FavMovies WHERE userid = ? AND movieid = ?`, [userId, movieId]);
+                    await connection.query(`DELETE FROM FavMovies2 WHERE user_id = ? AND movieid = ?`, [userId, movieId]);
                     
                 } catch (err) {
                     console.log(userId,"\n\n\n\n\n")
@@ -127,8 +127,9 @@ const undoSetup = async function() {
     await deleteUploadedUsers();
     console.log('Undo setup complete.');
 };
- 
+
 setup();
+
 
 
 

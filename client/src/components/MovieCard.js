@@ -28,6 +28,7 @@ export default function MovieCard({ showName, handleClose }) {
 
   // const [barRadar, setBarRadar] = useState(true);
   const handleLike = async () => {
+    console.log("hello;");
     const res = await axios.get(
       `http://${config.server_host}:${config.server_port}/toggleLike/${showData.id}`,
       {
