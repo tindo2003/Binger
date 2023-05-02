@@ -115,6 +115,133 @@ const movie = async function(req, res) {
   });
 }
 
+const toggleLike = async function (req, res) {
+
+    const user = await verifyUser(req.headers.authorization);
+    //const user = {"userId": "0efdfc13-e650-4b17-8d77-2787df08b4bc"};
+    if(!user){
+      res.status(400).json({ error: "user not logged in" });
+      return;
+    }
+
+    const userId = user.userId;
+
+    const movieid = req.params.movieid;
+
+    //checks if the user has already liked the movie
+
+    connection.query(`SELECT * 
+                      FROM FavMovies
+                      WHERE userid = '${userId}' AND movieid = '${movieid}'`, (err, data) => {
+                        if (err){
+                          console.log("error checking if user has liked movie", err);
+                          res.status(400).json({error: "error checking if user has liked movie"});
+                          return;
+                        } else {
+                        if(data.length===0){
+                          console.log("liked the movie")
+                          //user has not liked the movie yet
+                          connection.query(`INSERT INTO FavMovies (userid, movieid) VALUES ('${userId}', ${movieid})`, (err, data) => {
+                            if (err){
+                              console.log("error adding movie to user's favorites", err);
+                              res.status(400).json({error: "error adding movie to user's favorites"});
+                              return;
+                            }
+                            res.status(200).json({success: true, likeStatus: true});
+                          });
+                        } else{
+                          //user has already liked the movie
+                          console.log("disliked the movie");
+                          connection.query(`DELETE FROM FavMovies WHERE userid = '${userId}' AND movieid = '${movieid}'`, (err, data) => {
+                            if (err){
+                              console.log("error removing movie from user's favorites", err);
+                              res.status(400).json({error: "error removing movie from user's favorites"});
+                              return;
+                            }
+                            res.status(200).json({success: true, likeStatus:false});
+                          });
+                        }
+                      }
+
+                      });
+
+
+}
+
+const recommender = async function (req, res) {
+
+  //const user = await verifyUser(req.headers.authorization);
+  const user = {"userId": "0efdfc13-e650-4b17-8d77-2787df08b4bc"};
+  if(!user){
+    res.status(400).json({ error: "user not logged in" });
+    return;
+  }
+
+  const userId = user.userId;
+
+  queryAsync(`SELECT * FROM FavMovies WHERE userid = ?`, [userId])
+  .then((data) => {
+    const movieIds = data.map((movie) => movie.movieid);
+
+    // Get movies also liked by the similar users
+    return queryAsync(`
+      SELECT fm2.movieid, COUNT(fm2.userid) as mutualLikeCount
+      FROM FavMovies as fm1
+      JOIN FavMovies as fm2 ON fm1.userid = fm2.userid
+      WHERE fm1.movieid IN (?) AND fm1.userid != ? AND fm2.movieid != fm1.movieid
+      GROUP BY fm2.movieid
+      ORDER BY mutualLikeCount DESC
+    `, [movieIds, userId]);
+  }).then((data) => { 
+
+    const movieIds = data.map((movie) => movie.movieid);
+
+    connection.query(`SELECT id, original_title 
+                      FROM Movies
+                      WHERE id IN (?)`, [movieIds], (err, movieNames) => {
+                        if (err){
+                          console.log("error getting movie titles", err);
+                          res.status(400).json({error: "error getting movie titles"});
+                          return;
+                        }
+
+                        // Create a mapping of movieIds to movieNames
+                        const movieNameMap = new Map(movieNames.map(movie => [movie.id, movie.original_title]));
+
+                        // Update data with movie names
+                        const updatedData = data.map(movie => {
+                          return {
+                            ...movie,
+                            movieName: movieNameMap.get(movie.movieid)
+                          };
+                        });
+
+                        updatedData.sort((a, b) => b.mutualLikeCount - a.mutualLikeCount);
+
+                        res.status(200).json({success: true, similarMovies: updatedData});
+                      }
+    );
+  }).catch(err => {
+    console.log(err);
+    res.status(400).json({error: "there was an error in the recommender: ", err});
+  });
+
+
+}
+
+function queryAsync(sql, params) {
+  return new Promise((resolve, reject) => {
+    connection.query(sql, params, (err, data) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(data);
+      }
+    });
+  });
+}
+
+
 // Route: GET /show/:title
 // Pull up the show card for the given show
 // Related query can pull up providers that display a given movie/show
@@ -508,4 +635,6 @@ module.exports = {
   streamTopTen,
   imdb,
   search_movies,
+  toggleLike,
+  recommender,
 }
