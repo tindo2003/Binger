@@ -89,7 +89,7 @@ const simpleTest = async function (req, res) {
   SELECT *
   FROM Netflix
   WHERE type LIKE '%${type}%' AND
-  title LIKE '%${title}%'
+  title LIKE '${title}%'
   ORDER BY release_year DESC;
 `,
     (err, data) => {
@@ -451,18 +451,18 @@ const show = async function (req, res) {
     `
     WITH shows AS ((SELECT *
       FROM Netflix
-      WHERE Type LIKE 'TV Show')
+      WHERE Type = 'TV Show')
       UNION ALL
       (SELECT *
       FROM Amazon
-      WHERE Type LIKE 'TV Show')
+      WHERE Type = 'TV Show')
       UNION ALL
       (SELECT *
       FROM Hulu
-      WHERE Type LIKE 'TV Show')
+      WHERE Type = 'TV Show')
       UNION ALL
       (SELECT *
-      FROM Disney WHERE Type LIKE 'TV Show'))
+      FROM Disney WHERE Type = 'TV Show'))
       SELECT * FROM shows WHERE title = '${req.params.title}' LIMIT 1;
   `,
     (err, data) => {
@@ -599,7 +599,7 @@ const search_shows = async function (req, res) {
       (platform) => `SELECT *
     FROM ${platform}
     WHERE type LIKE 'TV Show' AND
-          title LIKE '%${title}%' AND
+          title LIKE '${title}%' AND
           (director LIKE '%${director}%' ${directorNull} AND
           (cast LIKE '%${cast}%' ${castNull} AND
           (country LIKE '%${country}%' ${countryNull} AND
@@ -686,21 +686,20 @@ const imdb = async function (req, res) {
     genreConditions = ' AND' + genreConditions + ' AND '
     // conditions.push(`(${genreConditions})`);
   }
+  const query = `SELECT *
+  FROM Movies
+  WHERE budget >= ${budgetMin} AND
+        budget <= ${budgetMax}
+        ${genreConditions}
+        (original_language LIKE '%${originalLanguage}%' ${oLNull} AND
+        (overview LIKE '%${overview}%' ${overviewNull} AND
+        (original_title LIKE '${original_title}%' ${oTNull} AND
+        modified_release_year BETWEEN '${releaseYearMin}' AND '${releaseYearMax}'
+        
+  ORDER BY modified_release_year DESC;`
+  console.log(query);
 
-  connection.query(
-    `
-    SELECT *
-    FROM Movies
-    WHERE budget >= ${budgetMin} AND
-          budget <= ${budgetMax}
-          ${genreConditions}
-          (original_language LIKE '%${originalLanguage}%' ${oLNull} AND
-          (overview LIKE '%${overview}%' ${overviewNull} AND
-          (original_title LIKE '%${original_title}%' ${oTNull} AND
-          modified_release_year BETWEEN '${releaseYearMin}' AND '${releaseYearMax}'
-          
-    ORDER BY modified_release_year DESC;
-  `,
+  connection.query(query ,
     (err, data) => {
       if (err || data.length === 0) {
         res.json([])
@@ -735,7 +734,7 @@ const search_movies = async function (req, res) {
   const genres = req.query.genres ? JSON.parse(req.query.genres) : []
   const originalLanguage = req.query.originalLanguage ?? ''
 
-  const conditions = [`(title LIKE '%${title}%')`]
+  const conditions = [`(title LIKE '${title}%')`]
 
   if (director) {
     conditions.push(`(director LIKE '%${director}%')`)
