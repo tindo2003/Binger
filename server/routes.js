@@ -89,7 +89,7 @@ const simpleTest = async function (req, res) {
   SELECT *
   FROM Netflix
   WHERE type LIKE '%${type}%' AND
-  title LIKE '%${title}%'
+  title LIKE '${title}%'
   ORDER BY release_year DESC;
 `,
     (err, data) => {
@@ -451,18 +451,18 @@ const show = async function (req, res) {
     `
     WITH shows AS ((SELECT *
       FROM Netflix
-      WHERE Type LIKE 'TV Show')
+      WHERE Type = 'TV Show')
       UNION ALL
       (SELECT *
       FROM Amazon
-      WHERE Type LIKE 'TV Show')
+      WHERE Type = 'TV Show')
       UNION ALL
       (SELECT *
       FROM Hulu
-      WHERE Type LIKE 'TV Show')
+      WHERE Type = 'TV Show')
       UNION ALL
       (SELECT *
-      FROM Disney WHERE Type LIKE 'TV Show'))
+      FROM Disney WHERE Type = 'TV Show'))
       SELECT * FROM shows WHERE title = '${req.params.title}' LIMIT 1;
   `,
     (err, data) => {
@@ -599,7 +599,7 @@ const search_shows = async function (req, res) {
       (platform) => `SELECT *
     FROM ${platform}
     WHERE type LIKE 'TV Show' AND
-          title LIKE '%${title}%' AND
+          title LIKE '${title}%' AND
           (director LIKE '%${director}%' ${directorNull} AND
           (cast LIKE '%${cast}%' ${castNull} AND
           (country LIKE '%${country}%' ${countryNull} AND
@@ -686,21 +686,20 @@ const imdb = async function (req, res) {
     genreConditions = ' AND' + genreConditions + ' AND '
     // conditions.push(`(${genreConditions})`);
   }
+  const query = `SELECT *
+  FROM Movies
+  WHERE budget >= ${budgetMin} AND
+        budget <= ${budgetMax}
+        ${genreConditions}
+        (original_language LIKE '%${originalLanguage}%' ${oLNull} AND
+        (overview LIKE '%${overview}%' ${overviewNull} AND
+        (original_title LIKE '${original_title}%' ${oTNull} AND
+        modified_release_year BETWEEN '${releaseYearMin}' AND '${releaseYearMax}'
+        
+  ORDER BY modified_release_year DESC;`
+  console.log(query);
 
-  connection.query(
-    `
-    SELECT *
-    FROM Movies
-    WHERE budget >= ${budgetMin} AND
-          budget <= ${budgetMax}
-          ${genreConditions}
-          (original_language LIKE '%${originalLanguage}%' ${oLNull} AND
-          (overview LIKE '%${overview}%' ${overviewNull} AND
-          (original_title LIKE '%${original_title}%' ${oTNull} AND
-          modified_release_year BETWEEN '${releaseYearMin}' AND '${releaseYearMax}'
-          
-    ORDER BY modified_release_year DESC;
-  `,
+  connection.query(query ,
     (err, data) => {
       if (err || data.length === 0) {
         res.json([])
@@ -735,7 +734,7 @@ const search_movies = async function (req, res) {
   const genres = req.query.genres ? JSON.parse(req.query.genres) : []
   const originalLanguage = req.query.originalLanguage ?? ''
 
-  const conditions = [`(title LIKE '%${title}%')`]
+  const conditions = [`(title LIKE '${title}%')`]
 
   if (director) {
     conditions.push(`(director LIKE '%${director}%')`)
@@ -761,15 +760,23 @@ const search_movies = async function (req, res) {
   if (amazon) selectedPlatforms.push('Amazon')
   if (hulu) selectedPlatforms.push('Hulu')
 
-  let genreConditions = 'AND'
+  let genreConditions = ''
   // genre query
   if (genres.length > 0) {
     genreConditions = genres
       .map((genre) => `(genres LIKE '%${genre}%')`)
       .join(' AND ')
-    genreConditions = ' AND' + genreConditions + ' AND '
+    genreConditions = ' AND' + genreConditions
     // conditions.push(`(${genreConditions})`);
   }
+  let languageConditions;
+
+  if (originalLanguage === '') {
+    languageConditions = '';
+  } else {
+    languageConditions = ` AND original_language = '${originalLanguage}'`
+  }
+
 
   const unionQuery = selectedPlatforms
     .map((platform) => `SELECT * FROM ${platform} WHERE type = 'Movie'`)
@@ -785,7 +792,7 @@ const search_movies = async function (req, res) {
   ), Moovie AS (
     SELECT original_title, budget, genres, original_language, modified_release_year
     FROM Movies
-    WHERE budget <= ${budgetMax} AND budget >= ${budgetMin}  ${genreConditions}  original_language LIKE '%${originalLanguage}%'
+    WHERE budget <= ${budgetMax} AND budget >= ${budgetMin}  ${genreConditions}  ${languageConditions}
   )
   SELECT c.title, m.budget, m.genres, m.original_language, c.description, c.release_year, c.director, c.cast, c.rating
     FROM Combined c JOIN Moovie m ON c.title = m.original_title AND c.release_year = SUBSTRING(m.modified_release_year,1,4)
