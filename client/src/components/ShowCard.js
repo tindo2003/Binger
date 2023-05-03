@@ -17,10 +17,10 @@ import axios from 'axios'
 // import { formatDuration } from '../helpers/formatter';
 const config = require('../config.json')
 
-// SongCard is a modal (a common example of a modal is a dialog window).
+// SHOWCard is a modal (a common example of a modal is a dialog window).
 // Typically, modals will conditionally appear (specified by the Modal's open property)
 // but in our implementation whether the Modal is open is handled by the parent component
-// (see HomePage.js for example), since it depends on the state (selectedSongId) of the parent
+// (see HomePage.js for example), since it depends on the state (selectedSHOW) of the parent
 export default function ShowCard({ showName, handleClose }) {
   const [showData, setShowData] = useState({})
   const [streamingData, setStreamingData] = useState([])

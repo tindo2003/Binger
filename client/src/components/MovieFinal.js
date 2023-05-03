@@ -1,5 +1,5 @@
 import StreamableTable from './StreamableTable';
-import SearchMoviePage from './SearchMoviePage';
+import SearchMoviePage from './SearchMovieComponent';
 import React, { useState, useEffect } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import { Button, Container, FormControl, FormControlLabel, FormGroup, Grid, InputLabel, Link, MenuItem, Select, Slider, Switch, TextField } from '@mui/material';

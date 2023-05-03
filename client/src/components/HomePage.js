@@ -31,7 +31,6 @@ function HomePage() {
   const [topMovies, setTopMovies] = useState([])
   const [selectedStream, setSelectedStream] = useState(null)
   const [selectedMovie, setSelectedMovie] = useState(null)
-  const [isRecommened, setIsRecommended] = useState(false)
   const [recMovies, setRecMovies] = useState([])
   const navigate = useNavigate()
 
@@ -64,7 +63,6 @@ function HomePage() {
           return { id: movie.movieid, ...movie }
         })
         console.log(result);
-        resJson.similarMovies.length > 0 ? setIsRecommended(true) : setIsRecommended(false);
         setRecMovies(result);
       })
   }, [])
@@ -287,66 +285,6 @@ function HomePage() {
       </Container>
     )
   }
-
-  // return (
-  //   <Container className='p-8'>
-  //     {selectedStream && <StreamMovieCard showName={selectedStream} handleClose={() => setSelectedStream(null)} />}
-  //     {selectedMovie && <MovieCard showName={selectedMovie} handleClose={() => setSelectedMovie(null)} />}
-  //     <p className='text-5xl font-bold my-4'>Welcome to BINGER.</p>
-  //     <p className='text-xl mb-7'>This is your one-stop shop for all your binge-watching needs. Find the content you love.</p>
-  //     <Divider />
-  //     <p class='text-3xl font-medium mt-8'>BEST CONTENT</p>
-  //     <Container className='mt-6' style={{ minHeight: '64vh' }}>
-  //       <Grid container spacing={2}>
-  //         <Grid item xs={6}>
-  //           <p className='text-2xl font-semibold my-2'>Top 10 Movies (Streaming)</p>
-  //           <FormControl component="fieldset" className='my-2'>
-  //             <RadioGroup aria-label="streaming" name="streaming" value={platform} onChange={handlePlatformChange} row>
-  //               <FormControlLabel value="Netflix" control={<Radio />} label="Netflix" />
-  //               <FormControlLabel value="Amazon" control={<Radio />} label="Amazon" />
-  //               <FormControlLabel value="Disney" control={<Radio />} label="Disney" />
-  //               <FormControlLabel value="Hulu" control={<Radio />} label="Hulu" />
-  //             </RadioGroup>
-  //           </FormControl>
-  //           <div style={{ height: 'calc(76vh - 250px)', width: '100%' }}>
-  //             <DataGrid
-  //               rows={topStreamMovies}
-  //               columns={columnsStream}
-  //               initialState={{
-  //                 pagination: {
-  //                   paginationModel: {
-  //                     pageSize: 5,
-  //                   },
-  //                 },
-  //               }}
-  //               pageSizeOptions={[5, 10]}
-  //             />
-  //           </div>
-  //         </Grid>
-  //         <Grid item xs={6}>
-  //           <p className='text-2xl font-semibold mt-2'>Top 100 Movies (Overall)</p>
-  //           <div style={{height:'3.1em'}}></div>
-  //           <div style={{ height: 'calc(76vh - 250px)', width: '100%' }}>
-  //             <DataGrid
-  //               rows={topMovies}
-  //               columns={columnsMovie}
-  //               initialState={{
-  //                 pagination: {
-  //                   paginationModel: {
-  //                     pageSize: 5,
-  //                   },
-  //                 },
-  //               }}
-  //               pageSizeOptions={[5, 10, 25]}
-  //             />
-  //           </div>
-  //         </Grid>
-  //       </Grid>
-  //     </Container>
-  //     <Divider />
-  //     <p className='text-3xl font-medium mt-8'>RECOMMENDATIONS</p>
-  //   </Container>
-  // )
 }
 
 export default HomePage
